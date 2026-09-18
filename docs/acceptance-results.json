@@ -1,0 +1,52 @@
+{
+  "date": "2026-09-18",
+  "scope": "Bounded live smoke, not full-site coverage",
+  "first_sync": {
+    "discovered": 40,
+    "indexed": 40,
+    "unchanged": 0,
+    "failed": 0,
+    "partial": false,
+    "truncated": false,
+    "by_source": {
+      "official": {
+        "discovered": 8,
+        "indexed": 8,
+        "failed": 0
+      },
+      "github": {
+        "discovered": 18,
+        "indexed": 18,
+        "failed": 0
+      },
+      "docker": {
+        "discovered": 14,
+        "indexed": 14,
+        "failed": 0
+      }
+    }
+  },
+  "repeat_checks": {
+    "official_and_github_before_rate_limit": {
+      "discovered": 26,
+      "indexed": 0,
+      "unchanged": 26,
+      "failed": 0
+    },
+    "docker": {
+      "discovered": 14,
+      "indexed": 0,
+      "unchanged": 14,
+      "failed": 0
+    },
+    "note": "A later combined rerun hit three GitHub unauthenticated API 403 responses after repeated live probes; the command returned exit code 1 and preserved the existing index."
+  },
+  "offline_tests": {
+    "passed": 29
+  },
+  "mcp_protocol": {
+    "initialize": "passed",
+    "tools_list": "passed",
+    "tools_call": "passed"
+  }
+}

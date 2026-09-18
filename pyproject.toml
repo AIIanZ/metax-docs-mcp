@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metax-docs-mcp"
+version = "0.1.0"
+description = "Local MCP server and CLI for MetaX official and MetaX-MACA documentation"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.12,<2",
+    "httpx",
+    "beautifulsoup4",
+    "markdownify",
+]
+
+[project.scripts]
+metax-docs-mcp = "metax_docs_mcp.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

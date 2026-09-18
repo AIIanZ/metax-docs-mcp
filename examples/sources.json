@@ -1,0 +1,29 @@
+{
+  "official": {
+    "seeds": [
+      "https://developer.metax-tech.com/doc"
+    ],
+    "max_pages": 100,
+    "discover": true
+  },
+  "github": {
+    "organization": "MetaX-MACA",
+    "repositories": [
+      "maca-samples"
+    ],
+    "max_files_per_repo": 100,
+    "include_code": false
+  },
+  "docker": {
+    "seeds": [
+      "https://developer.metax-tech.com/softnova/docker?chip_name=%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97&package_kind=MXMACA&dimension=docker&deliver_type=%E5%88%86%E5%B1%82%E5%8C%85"
+    ],
+    "page_size": 100,
+    "max_pages": 20,
+    "max_items": 2000
+  },
+  "http": {
+    "timeout": 20,
+    "retries": 2
+  }
+}
