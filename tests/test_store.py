@@ -241,3 +241,75 @@ def test_mixed_short_chinese_terms_filter_before_fts_candidate_cap(tmp_path, mon
     store.upsert(make_document('target', title='target', text='mx-smi 查看拓扑'))
     assert store.search('mx-smi 拓扑')[0]['id'] == 'target'
     store.close()
+
+
+def test_find_documents_resolves_exact_paths_prefixes_and_titles(tmp_path):
+    store = Store(tmp_path / "index.sqlite3")
+    try:
+        store.upsert(
+            Document(
+                id="github:mcoplib:structure",
+                source="github",
+                title="mcOpLib 项目代码结构",
+                url="https://example.test/structure",
+                text="# 结构\n算子源码组织",
+                repository="MetaX-MACA/mcoplib",
+                path="docs/code_structure.md",
+                revision="abc123",
+                metadata={"content_kind": "documentation"},
+            )
+        )
+        store.upsert(
+            Document(
+                id="github:mcoplib:c500",
+                source="github",
+                title="Metax C500 GPU Optimization Guide for CUDA Kernels",
+                url="https://example.test/c500",
+                text="# C500\n避免 atomic",
+                repository="MetaX-MACA/mcoplib",
+                path="Skills/optimized-cuda-kernels/references/c500-optimization-guide.md",
+                revision="abc123",
+            )
+        )
+        store.upsert(
+            Document(
+                id="official:mxcc",
+                source="official",
+                title="沐曦通用GPU mxcc编译器用户指南",
+                url="https://example.test/mxcc",
+                text="# 概述\nmxcc 编译器",
+                version="3.9.1",
+            )
+        )
+
+        exact = store.find_documents(repository="MetaX-MACA/mcoplib", path="docs/code_structure.md")
+        assert [row["id"] for row in exact] == ["github:mcoplib:structure"]
+        assert exact[0]["content_kind"] == "documentation"
+        assert exact[0]["text_length"] == len("# 结构\n算子源码组织")
+
+        prefixed = store.find_documents(
+            repository="MetaX-MACA/mcoplib",
+            path_prefix="Skills/optimized-cuda-kernels/",
+        )
+        assert [row["id"] for row in prefixed] == ["github:mcoplib:c500"]
+
+        titled = store.find_documents(source="official", title="mxcc编译器用户指南")
+        assert [row["id"] for row in titled] == ["official:mxcc"]
+
+        assert store.find_documents(repository="MetaX-MACA/mcoplib", path="missing.md") == []
+        assert store.find_documents(source="docker", repository="MetaX-MACA/mcoplib") == []
+    finally:
+        store.close()
+
+
+def test_find_documents_rejects_invalid_filters(tmp_path):
+    store = Store(tmp_path / "index.sqlite3")
+    try:
+        with pytest.raises(ValueError):
+            store.find_documents(source="blog")
+        with pytest.raises(ValueError):
+            store.find_documents(limit=0)
+        with pytest.raises(TypeError):
+            store.find_documents(limit=True)
+    finally:
+        store.close()

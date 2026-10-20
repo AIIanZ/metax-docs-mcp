@@ -61,6 +61,13 @@ def _parser() -> argparse.ArgumentParser:
 
     commands.add_parser("sources", help="show indexed source counts")
 
+    opdev = commands.add_parser(
+        "opdev",
+        help="list or resolve curated operator-development topics",
+    )
+    opdev.add_argument("topic", nargs="?", default=None, metavar="TOPIC")
+    opdev.add_argument("--limit", type=_positive_int, default=60)
+
     serve = commands.add_parser("serve", help="run the MCP server over stdio")
     serve.set_defaults(command="serve")
 
@@ -170,6 +177,18 @@ def _run(args: argparse.Namespace) -> Any:
             return value
         if args.command == "sources":
             return store.list_sources()
+        if args.command == "opdev":
+            from . import opdev
+
+            if args.topic is None:
+                return {"topics": opdev.catalogue(), "usage": opdev.usage()}
+            resolved = opdev.resolve_topic(store, args.topic, limit=args.limit)
+            if resolved is None:
+                raise LookupError(
+                    f"unknown operator topic: {args.topic}; valid: "
+                    + ", ".join(opdev.topic_slugs())
+                )
+            return resolved
         raise ValueError(f"unknown command: {args.command}")
     finally:
         _close_store(store)

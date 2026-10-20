@@ -369,3 +369,15 @@ API 是前端 bundle 观察到的非稳定公开接口，HTTP 200 仍可能包�
 curl -fsSL 'https://developer.metax-tech.com/softnova/api/v3/dlhub/docker_package_info/?chip_name=%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97&package_kind=MXMACA&dimension=docker&deliver_type=%E5%88%86%E5%B1%82%E5%8C%85&page=1&size=10'
 curl -fsSL 'https://developer.metax-tech.com/softnova/api/v3/dlhub/choice_info/?chip_name=%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97&dimension=docker'
 ~~~
+
+## MACA 编程和框架源码扩展（2026-09-30）
+
+本次通过公开 GitHub API 核对 [MetaX-MACA 仓库](https://github.com/MetaX-MACA) 和 [TileLang-Metax](https://github.com/tile-ai/tilelang-metax)。默认来源配置选择 vLLM-metax、sglang、maca-samples、gpuBenchmark、mcoplib、TileOPs-Metax、TileKernels-Metax 和 tilelang-metax，收录支持扩展名的文档、源码与构建文件。
+
+SGLang 的默认 `main` 分支在本次快照中没有 MACA 平台检测代码。读取 [release/v0.5.14 的 common.py](https://github.com/MetaX-MACA/sglang/blob/a60ee6e5be6f19d94b0ac07bd1b281eb385f37bd/python/sglang/srt/utils/common.py) 确认存在 `is_maca()` 和 MACA 设备相关逻辑，因此默认配置使用该发布分支。仓库地址属于沐曦组织，不足以证明默认分支含适配实现，验收必须查询实际源码。
+
+官方目录本次提供 MACA 3.9.0 的编程手册。配置按精确 `series_name` 选择 C++ 编程、运行时 API 编程与参考、mxcc、编译器内建函数、mcProfiler、mcTracer、mcTriton、MCCL 和快速上手指南，另加 AI 推理手册。预览 ID 每次由目录解析，避免把旧 ID 当作永久入口。
+
+代码库使用固定 commit 的 Git tree 和 `https://codeload.github.com/<owner>/<repo>/tar.gz/<commit>`。每个文件的原始字节与 tree 中的 Git blob SHA 核对后才入库。服务仍只读本地 SQLite；同步归档不会执行其中的构建脚本或命令。固定 commit、分支和内容类型随检索结果及回读元数据返回。
+
+配置排除大型 tokenizer、一个生成的 SGLang 稀疏测试 JSON 和两个 TileLang 上游 HIP/CUDA 头文件。这些排除项不参与范围完成判断，具体模式见 `examples/sources.json`。历史版本、子模块、PDF、Notebook、二进制和不支持的文件扩展名仍在范围外。

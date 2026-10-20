@@ -1,0 +1,478 @@
+{
+  "database": ".data/index.sqlite3",
+  "queries": [
+    {
+      "query": "MacaPlatformBase",
+      "source": "github",
+      "repository": "MetaX-MACA/vLLM-metax",
+      "id": "github:945cd644c8fb129320f31ec531ed54b83fbf923f37b27f5fb482990f9edf8bb9",
+      "path": "vllm_metax/platform.py",
+      "url": "https://github.com/MetaX-MACA/vLLM-metax/blob/f2fcc59c314f1fbc7897f46d465e5f7c35900e8a/vllm_metax/platform.py",
+      "revision": "f2fcc59c314f1fbc7897f46d465e5f7c35900e8a",
+      "version": "master",
+      "content_kind": "code",
+      "read_ok": true
+    },
+    {
+      "query": "is_maca",
+      "source": "github",
+      "repository": "MetaX-MACA/sglang",
+      "id": "github:6018df84ba37effc1565870d1ba7ee84b574c2332c58597e74814f74f569bcfe",
+      "path": "python/sglang/srt/layers/attention/triton_ops/prefill_attention.py",
+      "url": "https://github.com/MetaX-MACA/sglang/blob/a60ee6e5be6f19d94b0ac07bd1b281eb385f37bd/python/sglang/srt/layers/attention/triton_ops/prefill_attention.py",
+      "revision": "a60ee6e5be6f19d94b0ac07bd1b281eb385f37bd",
+      "version": "release/v0.5.14",
+      "content_kind": "code",
+      "read_ok": true
+    },
+    {
+      "query": "mcMalloc",
+      "source": "github",
+      "repository": "MetaX-MACA/maca-samples",
+      "id": "github:244109587debbaed4db869daa7cc506790fcdb5a345afcace97d34b46829fcab",
+      "path": "0_Introduction/singleProcessMultiGpus/singleProcessMultiGpus.cpp",
+      "url": "https://github.com/MetaX-MACA/maca-samples/blob/e6de14cc4d9248768d066a1475450ed7705fd766/0_Introduction/singleProcessMultiGpus/singleProcessMultiGpus.cpp",
+      "revision": "e6de14cc4d9248768d066a1475450ed7705fd766",
+      "version": "main",
+      "content_kind": "code",
+      "read_ok": true
+    },
+    {
+      "query": "WarpSize",
+      "source": "github",
+      "repository": "MetaX-MACA/gpuBenchmark",
+      "id": "github:51ae22d69d37d08a4fe0caee63935cfcd8bc8b082f5e7f8b1ad818e805745786",
+      "path": "utils/cudaDeviceQuery.h",
+      "url": "https://github.com/MetaX-MACA/gpuBenchmark/blob/c036397faf50b02173820f4ceba61771c473c181/utils/cudaDeviceQuery.h",
+      "revision": "c036397faf50b02173820f4ceba61771c473c181",
+      "version": "main",
+      "content_kind": "code",
+      "read_ok": true
+    },
+    {
+      "query": "awq_gemm",
+      "source": "github",
+      "repository": "MetaX-MACA/mcoplib",
+      "id": "github:e89f642251e9d3804cc17e5ce1ee1f21540110d073ddb7e65c0954fc52798c8d",
+      "path": "benchmark/runners/mcoplib_mxbenchmark_awq_gemm_runners.py",
+      "url": "https://github.com/MetaX-MACA/mcoplib/blob/08cc4ef31f1a5f1b9d12af743cfbd39b44552a5c/benchmark/runners/mcoplib_mxbenchmark_awq_gemm_runners.py",
+      "revision": "08cc4ef31f1a5f1b9d12af743cfbd39b44552a5c",
+      "version": "main",
+      "content_kind": "code",
+      "read_ok": true
+    },
+    {
+      "query": "maca",
+      "source": "github",
+      "repository": "MetaX-MACA/TileOPs-Metax",
+      "id": "github:648773571957657c3aebbb161033ea58bbbd575cba1ffa22f9fa3acf711519d4",
+      "path": "src/tileops/kernels/linear_attention/gated_deltanet/gated_deltanet_bwd_maca.py",
+      "url": "https://github.com/MetaX-MACA/TileOPs-Metax/blob/4df32b284f4695b1ee307517cd5ad0fd3e1d22a1/src/tileops/kernels/linear_attention/gated_deltanet/gated_deltanet_bwd_maca.py",
+      "revision": "4df32b284f4695b1ee307517cd5ad0fd3e1d22a1",
+      "version": "dev",
+      "content_kind": "code",
+      "read_ok": true
+    },
+    {
+      "query": "maca",
+      "source": "github",
+      "repository": "MetaX-MACA/TileKernels-Metax",
+      "id": "github:683c1ba5b1aeda96bae1a109d5a7a557e4d399654445b0dbc22265c80137cf74",
+      "path": "tile_kernels/quant/common.py",
+      "url": "https://github.com/MetaX-MACA/TileKernels-Metax/blob/0266ab740980de7dc03a828b8259cd73d100c2eb/tile_kernels/quant/common.py",
+      "revision": "0266ab740980de7dc03a828b8259cd73d100c2eb",
+      "version": "dev",
+      "content_kind": "code",
+      "read_ok": true
+    },
+    {
+      "query": "maca",
+      "source": "github",
+      "repository": "tile-ai/tilelang-metax",
+      "id": "github:ab1c0bd4ffde2a61f76169cd5a03ba8256625161e8fd1e1ab174dbfab4236e3e",
+      "path": "src/maca/codegen/codegen_maca.cc",
+      "url": "https://github.com/tile-ai/tilelang-metax/blob/c6074aa115355605fbe971f485405d783f384443/src/maca/codegen/codegen_maca.cc",
+      "revision": "c6074aa115355605fbe971f485405d783f384443",
+      "version": "dev",
+      "content_kind": "code",
+      "read_ok": true
+    },
+    {
+      "query": "mcMalloc",
+      "source": "official",
+      "repository": null,
+      "id": "official:7704c2ccfbf2f65465ea30f05d4d04a4760f3be9b841f1af8ceeeafaec704894",
+      "path": "/api/client/document/preview/API%20%E5%8F%82%E8%80%83/MXMACA%E8%BF%90%E8%A1%8C%E6%97%B6API%E5%8F%82%E8%80%83/%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97/3.9.0/split_files/mxmaca_%E8%BF%90%E8%A1%8C%E6%97%B6api%E6%A8%A1%E5%9D%97.html",
+      "url": "https://developer.metax-tech.com/api/client/document/preview/API%20%E5%8F%82%E8%80%83/MXMACA%E8%BF%90%E8%A1%8C%E6%97%B6API%E5%8F%82%E8%80%83/%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97/3.9.0/split_files/mxmaca_%E8%BF%90%E8%A1%8C%E6%97%B6api%E6%A8%A1%E5%9D%97.html",
+      "revision": "",
+      "version": "3.9.0",
+      "content_kind": null,
+      "read_ok": true
+    },
+    {
+      "query": "共享内存",
+      "source": "official",
+      "repository": null,
+      "id": "official:7704c2ccfbf2f65465ea30f05d4d04a4760f3be9b841f1af8ceeeafaec704894",
+      "path": "/api/client/document/preview/API%20%E5%8F%82%E8%80%83/MXMACA%E8%BF%90%E8%A1%8C%E6%97%B6API%E5%8F%82%E8%80%83/%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97/3.9.0/split_files/mxmaca_%E8%BF%90%E8%A1%8C%E6%97%B6api%E6%A8%A1%E5%9D%97.html",
+      "url": "https://developer.metax-tech.com/api/client/document/preview/API%20%E5%8F%82%E8%80%83/MXMACA%E8%BF%90%E8%A1%8C%E6%97%B6API%E5%8F%82%E8%80%83/%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97/3.9.0/split_files/mxmaca_%E8%BF%90%E8%A1%8C%E6%97%B6api%E6%A8%A1%E5%9D%97.html",
+      "revision": "",
+      "version": "3.9.0",
+      "content_kind": null,
+      "read_ok": true
+    },
+    {
+      "query": "mxcc",
+      "source": "official",
+      "repository": null,
+      "id": "official:5ee1e5e5c26b25e8a16d4300abf489e7a80420c122eb563b907961de5d7a04e2",
+      "path": "/api/client/document/preview/%E7%BC%96%E7%A8%8B%E5%8F%82%E8%80%83/mxcc%E7%BC%96%E8%AF%91%E5%99%A8%E7%94%A8%E6%88%B7%E6%8C%87%E5%8D%97/%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97/3.9.0/split_files/%E7%A4%BA%E4%BE%8B.html",
+      "url": "https://developer.metax-tech.com/api/client/document/preview/%E7%BC%96%E7%A8%8B%E5%8F%82%E8%80%83/mxcc%E7%BC%96%E8%AF%91%E5%99%A8%E7%94%A8%E6%88%B7%E6%8C%87%E5%8D%97/%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97/3.9.0/split_files/%E7%A4%BA%E4%BE%8B.html",
+      "revision": "",
+      "version": "3.9.0",
+      "content_kind": null,
+      "read_ok": true
+    },
+    {
+      "query": "MXMACA",
+      "source": "docker",
+      "repository": null,
+      "id": "docker:bd94001d070773a310a2df36bf4ea97b5535daf519c6b0349a5cdb520ce09ea9",
+      "path": "public-library/maca-native:3.5.3.6-ubuntu20.04-amd64",
+      "url": "https://developer.metax-tech.com/softnova/docker?chip_name=%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97&deliver_type=%E5%88%86%E5%B1%82%E5%8C%85&dimension=docker&package_kind=MXMACA",
+      "revision": "",
+      "version": "3.5.3.x",
+      "content_kind": null,
+      "read_ok": true
+    }
+  ],
+  "tools": [
+    "search_metax_docs",
+    "get_metax_document",
+    "get_metax_section",
+    "list_metax_sources"
+  ],
+  "sources": {
+    "total": 12460,
+    "total_documents": 12460,
+    "official": 75,
+    "github": 12366,
+    "docker": 19,
+    "by_source": {
+      "official": 75,
+      "github": 12366,
+      "docker": 19
+    },
+    "sources": {
+      "official": {
+        "count": 75,
+        "repositories": [],
+        "versions": [
+          "3.8.0.x",
+          "3.9.0"
+        ],
+        "oldest_fetched_at": "2026-09-18T14:48:46.798419Z",
+        "newest_fetched_at": "2026-09-30T04:27:39+00:00"
+      },
+      "github": {
+        "count": 12366,
+        "repositories": [
+          "MetaX-MACA/TileKernels-Metax",
+          "MetaX-MACA/TileOPs-Metax",
+          "MetaX-MACA/gpuBenchmark",
+          "MetaX-MACA/maca-samples",
+          "MetaX-MACA/mcoplib",
+          "MetaX-MACA/sglang",
+          "MetaX-MACA/vLLM-metax",
+          "tile-ai/tilelang-metax"
+        ],
+        "versions": [
+          "dev",
+          "main",
+          "release/v0.5.14",
+          "master"
+        ],
+        "oldest_fetched_at": "2026-09-30T04:27:43+00:00",
+        "newest_fetched_at": "2026-09-30T04:37:32.121401Z"
+      },
+      "docker": {
+        "count": 19,
+        "repositories": [],
+        "versions": [
+          "3.5.3.x",
+          "3.7.0.x",
+          "3.7.2.x",
+          "3.8.0.x",
+          "3.8.3.x",
+          "3.9.0.x"
+        ],
+        "oldest_fetched_at": "2026-09-18T14:48:59.254281Z",
+        "newest_fetched_at": "2026-09-30T04:30:37.373326Z"
+      }
+    }
+  },
+  "coverage": [
+    {
+      "source": "docker",
+      "repository": "",
+      "version": "3.5.3.x",
+      "revision": "",
+      "kind": null,
+      "count": 5
+    },
+    {
+      "source": "docker",
+      "repository": "",
+      "version": "3.7.0.x",
+      "revision": "",
+      "kind": null,
+      "count": 1
+    },
+    {
+      "source": "docker",
+      "repository": "",
+      "version": "3.7.2.x",
+      "revision": "",
+      "kind": null,
+      "count": 1
+    },
+    {
+      "source": "docker",
+      "repository": "",
+      "version": "3.8.0.x",
+      "revision": "",
+      "kind": null,
+      "count": 2
+    },
+    {
+      "source": "docker",
+      "repository": "",
+      "version": "3.8.3.x",
+      "revision": "",
+      "kind": null,
+      "count": 5
+    },
+    {
+      "source": "docker",
+      "repository": "",
+      "version": "3.9.0.x",
+      "revision": "",
+      "kind": null,
+      "count": 5
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/TileKernels-Metax",
+      "version": "dev",
+      "revision": "0266ab740980de7dc03a828b8259cd73d100c2eb",
+      "kind": "code",
+      "count": 123
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/TileKernels-Metax",
+      "version": "dev",
+      "revision": "0266ab740980de7dc03a828b8259cd73d100c2eb",
+      "kind": "documentation",
+      "count": 1
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/TileOPs-Metax",
+      "version": "dev",
+      "revision": "4df32b284f4695b1ee307517cd5ad0fd3e1d22a1",
+      "kind": "code",
+      "count": 616
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/TileOPs-Metax",
+      "version": "dev",
+      "revision": "4df32b284f4695b1ee307517cd5ad0fd3e1d22a1",
+      "kind": "documentation",
+      "count": 25
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/gpuBenchmark",
+      "version": "main",
+      "revision": "c036397faf50b02173820f4ceba61771c473c181",
+      "kind": "code",
+      "count": 51
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/gpuBenchmark",
+      "version": "main",
+      "revision": "c036397faf50b02173820f4ceba61771c473c181",
+      "kind": "documentation",
+      "count": 5
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/maca-samples",
+      "version": "main",
+      "revision": "e6de14cc4d9248768d066a1475450ed7705fd766",
+      "kind": "code",
+      "count": 52
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/maca-samples",
+      "version": "main",
+      "revision": "e6de14cc4d9248768d066a1475450ed7705fd766",
+      "kind": "documentation",
+      "count": 18
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/mcoplib",
+      "version": "main",
+      "revision": "08cc4ef31f1a5f1b9d12af743cfbd39b44552a5c",
+      "kind": "code",
+      "count": 1396
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/mcoplib",
+      "version": "main",
+      "revision": "08cc4ef31f1a5f1b9d12af743cfbd39b44552a5c",
+      "kind": "documentation",
+      "count": 77
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/sglang",
+      "version": "release/v0.5.14",
+      "revision": "a60ee6e5be6f19d94b0ac07bd1b281eb385f37bd",
+      "kind": "code",
+      "count": 6444
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/sglang",
+      "version": "release/v0.5.14",
+      "revision": "a60ee6e5be6f19d94b0ac07bd1b281eb385f37bd",
+      "kind": "documentation",
+      "count": 579
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/vLLM-metax",
+      "version": "master",
+      "revision": "f2fcc59c314f1fbc7897f46d465e5f7c35900e8a",
+      "kind": "code",
+      "count": 1241
+    },
+    {
+      "source": "github",
+      "repository": "MetaX-MACA/vLLM-metax",
+      "version": "master",
+      "revision": "f2fcc59c314f1fbc7897f46d465e5f7c35900e8a",
+      "kind": "documentation",
+      "count": 65
+    },
+    {
+      "source": "github",
+      "repository": "tile-ai/tilelang-metax",
+      "version": "dev",
+      "revision": "c6074aa115355605fbe971f485405d783f384443",
+      "kind": "code",
+      "count": 1583
+    },
+    {
+      "source": "github",
+      "repository": "tile-ai/tilelang-metax",
+      "version": "dev",
+      "revision": "c6074aa115355605fbe971f485405d783f384443",
+      "kind": "documentation",
+      "count": 90
+    },
+    {
+      "source": "official",
+      "repository": "",
+      "version": "",
+      "revision": "",
+      "kind": null,
+      "count": 8
+    },
+    {
+      "source": "official",
+      "repository": "",
+      "version": "3.8.0.x",
+      "revision": "",
+      "kind": null,
+      "count": 16
+    },
+    {
+      "source": "official",
+      "repository": "",
+      "version": "3.9.0",
+      "revision": "",
+      "kind": null,
+      "count": 51
+    }
+  ],
+  "official_series": [
+    {
+      "series": null,
+      "version": "",
+      "count": 8
+    },
+    {
+      "series": "AI推理用户手册",
+      "version": "3.8.0.x",
+      "count": 16
+    },
+    {
+      "series": "MCCL编程指南",
+      "version": "3.9.0",
+      "count": 6
+    },
+    {
+      "series": "MXMACA C++编程指南",
+      "version": "3.9.0",
+      "count": 5
+    },
+    {
+      "series": "MXMACA 编译器内建函数编程指南",
+      "version": "3.9.0",
+      "count": 4
+    },
+    {
+      "series": "MXMACA运行时API参考",
+      "version": "3.9.0",
+      "count": 5
+    },
+    {
+      "series": "mcProfiler使用手册",
+      "version": "3.9.0",
+      "count": 3
+    },
+    {
+      "series": "mcTracer使用手册",
+      "version": "3.9.0",
+      "count": 4
+    },
+    {
+      "series": "mcTriton用户指南",
+      "version": "3.9.0",
+      "count": 5
+    },
+    {
+      "series": "mxcc编译器用户指南",
+      "version": "3.9.0",
+      "count": 7
+    },
+    {
+      "series": "快速上手指南",
+      "version": "3.9.0",
+      "count": 6
+    },
+    {
+      "series": "运行时API编程指南",
+      "version": "3.9.0",
+      "count": 6
+    }
+  ]
+}

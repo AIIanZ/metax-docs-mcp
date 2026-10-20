@@ -29,6 +29,19 @@ def _seed_database(path: Path) -> None:
                 metadata={"fixture": True},
             )
         )
+        store.upsert(
+            Document(
+                id="github:mcoplib:benchmark/README.md@abc123",
+                source="github",
+                title="mxbench 性能测试工具",
+                url="https://github.com/MetaX-MACA/mcoplib/blob/abc123/benchmark/README.md",
+                text="# mxbench\n精度验证通过后采样性能。\n",
+                repository="MetaX-MACA/mcoplib",
+                path="benchmark/README.md",
+                revision="abc123",
+                metadata={"fixture": True},
+            )
+        )
     finally:
         store.close()
 
@@ -63,6 +76,7 @@ async def _stdio_round_trip(tmp_path):
                 "get_metax_document",
                 "get_metax_section",
                 "list_metax_sources",
+                "get_operator_guide",
             }
             search_tool = next(
                 tool for tool in listed.tools if tool.name == "search_metax_docs"
@@ -109,6 +123,29 @@ async def _stdio_round_trip(tmp_path):
             assert "maca-samples" in json.dumps(
                 getattr(sources, "structuredContent", None), ensure_ascii=False
             )
+
+            topics = await session.call_tool("get_operator_guide", {})
+            assert not topics.isError
+            topic_payload = json.dumps(
+                getattr(topics, "structuredContent", None), ensure_ascii=False
+            )
+            assert "benchmark" in topic_payload
+            assert "optimize-c600" in topic_payload
+
+            guide = await session.call_tool(
+                "get_operator_guide", {"topic": "benchmark", "limit": 5}
+            )
+            assert not guide.isError
+            guide_payload = getattr(guide, "structuredContent", None)
+            assert "github:mcoplib:benchmark/README.md@abc123" in json.dumps(
+                guide_payload, ensure_ascii=False
+            )
+            assert guide_payload["missing_references"]
+
+            unknown_topic = await session.call_tool(
+                "get_operator_guide", {"topic": "nope"}
+            )
+            assert unknown_topic.isError
 
             invalid = await session.call_tool(
                 "search_metax_docs", {"query": "", "limit": 3}

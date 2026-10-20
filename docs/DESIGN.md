@@ -1,7 +1,7 @@
 # metax-docs-mcp 方案与验收标准
 
 ## 目标和范围
-为 Codex、Claude Code、Cursor 等支持 stdio MCP 的 agent 提供统一、可追溯的沐曦资料检索。第一版覆盖公开官方 HTML 文档，MetaX-MACA 组织内所选仓库的 README、Markdown/RST 文档，以及官方 Docker 镜像目录元数据；代码索引可选。登录资料、PDF OCR、issues/PR 和向量检索不在首版范围。文档与代码分别标记来源，不能把某个仓库的实现自动当成所有 MACA 版本的规范。
+为 Codex、Claude Code、Cursor 等支持 stdio MCP 的 agent 提供统一、可追溯的沐曦资料检索。第一版覆盖公开官方 HTML 文档，MetaX-MACA 组织内所选仓库的 README、Markdown/RST 文档，以及官方 Docker 镜像目录元数据；默认配置已开启代码索引。登录资料、PDF OCR、issues/PR 和向量检索不在首版范围。文档与代码分别标记来源，不能把某个仓库的实现自动当成所有 MACA 版本的规范。
 
 ## 数据流
 
@@ -21,7 +21,7 @@ flowchart LR
 
 ## 来源与更新语义
 
-每条记录包含稳定 ID、来源、标题、原始 URL、版本、仓库、路径、commit、抓取时间、正文与元数据。GitHub 内容通过同一固定 commit 的 tree 和 raw URL 读取，引用采用 commit URL。官方无法识别版本时保持未知，不能用抓取时间代替产品版本。
+每条记录包含稳定 ID、来源、标题、原始 URL、版本、仓库、路径、commit、抓取时间、正文与元数据。GitHub 内容通过同一固定 commit 的 tree 和归档读取，文件内容核对 Git blob hash；小范围同步也可使用 blob API，引用采用 commit URL。官方无法识别版本时保持未知，不能用抓取时间代替产品版本。
 
 内容 hash 负责幂等写入；再次同步会刷新观察时间。首版保留历史已收录项，不因有界爬取或网络失败而删除记录。因此 sources 是本地索引覆盖清单，不是源站当前完整镜像；要清理源端删除项应使用新数据库重新同步。网络失败、页数/文件数上限和目录未遍历完必须显式报告，不能宣称全量同步完成。
 
@@ -31,8 +31,11 @@ flowchart LR
 - `get_metax_document`：按 ID 分页读取正文，并返回来源信息。
 - `get_metax_section`：读取相关章节，避免整本手册消耗上下文。
 - `list_metax_sources`：核实本地数据库收录情况及时间。
+- `get_operator_guide`：给出算子开发主题索引；带主题时返回解析后的文档列表与阅读顺序，未命中的引用进入 `missing_references`。
 
 技术 token 与中文都需要检索测试；相关性是词法检索，不能保证长自然语言问题的语义召回。agent 应先用具体 API、命令、错误串和产品名检索，再读完整章节，最后引用 URL。不同版本的命中应分开解释。
+
+算子开发有固定路径（写 kernel → 编译 → 接库 → 基准 → 优化 → 交付），因此除词法检索外还提供一层人工维护、机器校验的主题索引：`opdev.py` 只保存“指向哪里”，不复制正文；`get_operator_guide` 在查询时把主题解析成真实的文档 ID 与阅读顺序。这样既避免把教程写成会过期的二手材料，又能在刷新时用 `scripts/verify_operator_guide.py` 与 `scripts/verify_expanded.py` 发现引用失效，而不是让 agent 读到不存在的路径。
 
 ## 边界
 
@@ -51,7 +54,7 @@ flowchart LR
 
 ## 首版运行默认值
 
-本地运行、无需用户账号、GitHub 选择 `maca-samples` 作为开箱样本。仓库列表与官方页数可在 JSON 配置中扩展。每次同步结果是当次执行报告；`sources` 查询反映累计索引，不替代同步报告。后续需要跨团队共享时，优先共享安装包/配置并让各客户端建立本地索引，再评估托管 HTTP MCP。
+本地运行、无需用户账号、GitHub 默认收录沐曦 vLLM、SGLang、MACA 样例、基准测试、算子库（mcoplib / mcTlass / mcTriton / flashattn / McFlashInfer / op_optimization）和 TileLang 相关仓库。SGLang 默认选择含 MACA 适配的 `release/v0.5.14`，其他仓库使用默认分支。仓库、ref、官方手册类别、页数以及按仓库的排除模式可在 JSON 配置中调整。每次同步结果是当次执行报告；`sources` 查询反映累计索引，不替代同步报告。后续需要跨团队共享时，优先共享安装包/配置并让各客户端建立本地索引，再评估托管 HTTP MCP。
 
 ## 镜像目录扩展
 

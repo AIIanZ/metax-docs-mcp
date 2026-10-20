@@ -291,3 +291,87 @@ def test_html_truncation_is_reported(monkeypatch):
     report = sources.sync_sources(MemoryStore(), {'official':{'seeds':[url],'discover':False},'http':{'max_document_chars':1024,'rate_limit':0}},source='official')
     assert report['indexed'] == 1
     assert report['truncated'] and report['partial']
+
+
+def test_official_series_filter_inherits_metadata_and_reports_missing(monkeypatch):
+    catalog = 'https://developer.metax-tech.com/api/client/document/series/filter/?page=1&page_size=100'
+    url = 'https://developer.metax-tech.com/api/client/document/preview/2/index.html'
+    child = url.replace('index.html', 'chapter.html')
+    client = FakeClient({
+        catalog: FakeResponse(content=json.dumps({'code': 0, 'data': [
+            {'file_id': 1, 'series_name': 'Other'},
+            {'file_id': 2, 'series_name': 'MACA programming', 'version': '3.9.0'},
+        ]}).encode()),
+        url: FakeResponse(content=_html('MACA', 'programming '*30, ['chapter.html'])),
+        child: FakeResponse(content=_html('Chapter', 'mcMalloc '*30)),
+    })
+    _patch_client(monkeypatch, client)
+    store = MemoryStore()
+    config = {'official': {'seeds': ['https://developer.metax-tech.com/doc'], 'series': ['MACA programming', 'Missing']}, 'http': {'rate_limit': 0, 'retries': 0}}
+    report = sources.sync_sources(store, config, source='official')
+    assert report['indexed'] == 2 and report['failed'] == 1 and report['partial']
+    assert not any('/preview/1/' in call for call in client.calls)
+    assert all(doc.version == '3.9.0' for doc in store.documents.values())
+    assert all(doc.metadata['series_name'] == 'MACA programming' for doc in store.documents.values())
+
+
+def test_repository_exclude_globs_apply_to_one_repository_only(monkeypatch: pytest.MonkeyPatch):
+    root = "https://api.github.com/repos/MetaX-MACA/mcTriton"
+    revision = "1" * 40
+    vendored_sha = "2" * 40
+    backend_sha = "3" * 40
+    routes = {
+        root: FakeResponse(200, json.dumps({"default_branch": "3.0", "private": False}).encode()),
+        root + "/commits/3.0": FakeResponse(200, json.dumps({"sha": revision}).encode()),
+        root + f"/git/trees/{revision}?recursive=1": FakeResponse(
+            200,
+            json.dumps(
+                {
+                    "truncated": False,
+                    "tree": [
+                        {"path": "third_party/amd/backend/driver.c", "type": "blob", "sha": vendored_sha, "size": 12},
+                        {"path": "third_party/metax/backend/driver.c", "type": "blob", "sha": backend_sha, "size": 12},
+                    ],
+                }
+            ).encode(),
+        ),
+        root + f"/git/blobs/{vendored_sha}": FakeResponse(
+            200,
+            json.dumps({"encoding": "base64", "content": base64.b64encode(b"// amd\n").decode()}).encode(),
+        ),
+        root + f"/git/blobs/{backend_sha}": FakeResponse(
+            200,
+            json.dumps({"encoding": "base64", "content": base64.b64encode(b"// maca\n").decode()}).encode(),
+        ),
+    }
+    client = FakeClient(routes)
+    _patch_client(monkeypatch, client)
+    store = MemoryStore()
+    report = sources.sync_sources(
+        store,
+        {
+            "github": {
+                "repositories": ["mcTriton"],
+                "max_files_per_repo": 20,
+                "include_code": True,
+                "repository_exclude_globs": {"MetaX-MACA/mcTriton": ["third_party/amd/**"]},
+            },
+            "http": {"retries": 0, "rate_limit": 0},
+        },
+        source="github",
+    )
+    assert report["failed"] == 0
+    assert report["indexed"] == 1
+    assert [document.path for document in store.documents.values()] == ["third_party/metax/backend/driver.c"]
+    assert not any(vendored_sha in url for url in client.calls)
+
+
+def test_invalid_repository_exclude_globs_is_reported(monkeypatch: pytest.MonkeyPatch):
+    _patch_client(monkeypatch, FakeClient({}))
+    report = sources.sync_sources(
+        MemoryStore(),
+        {"github": {"repositories": ["maca-samples"], "repository_exclude_globs": {"maca-samples": "3rdparty/**"}}},
+        source="github",
+    )
+    assert report["failed"] == 1
+    assert any("repository_exclude_globs" in str(error.get("error")) for error in report["errors"])

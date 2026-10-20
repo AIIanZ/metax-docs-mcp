@@ -31,8 +31,12 @@ _INJECTION_NOTE = (
 )
 
 _SEARCH_DESCRIPTION = (
-    "Search indexed MetaX official docs, MetaX-MACA GitHub, and the Docker catalog. "
+    "Search indexed MACA programming manuals, MetaX vLLM/SGLang source code, "
+    "GPU samples, operator/TileLang code, and the Docker catalog. "
     "The source filter accepts official, github, or docker; repository uses owner/name. "
+    "Use MetaX-MACA/vLLM-metax or MetaX-MACA/sglang to scope framework code. "
+    "Search exact API names, symbols, filenames, or error strings, then read the hit. "
+    "For operator/kernel development use get_operator_guide() first to get a curated read plan. "
     + _INJECTION_NOTE
 )
 _DOCUMENT_DESCRIPTION = (
@@ -43,6 +47,15 @@ _SECTION_DESCRIPTION = (
 )
 _SOURCES_DESCRIPTION = (
     "List indexed source provenance and counts. " + _INJECTION_NOTE
+)
+_GUIDE_DESCRIPTION = (
+    "Curated operator-development guide for MetaX/MACA: call without a topic to list topics "
+    "(kernel writing, mcoplib layout, adding an op, benchmark, profiling, C500/C600 "
+    "optimization, Triton, TileLang, attention, quantization, GEMM, MCCL, MacaRT custom ops), "
+    "then call with one topic slug to resolve it to indexed documents with a read order. "
+    "References are repository paths or official manual titles, so they follow index refreshes. "
+    "Each documented path is resolved before it is returned; unmatched references are reported "
+    "in missing_references instead of being dropped. " + _INJECTION_NOTE
 )
 
 
@@ -151,11 +164,39 @@ def _tool_functions(
 
         return with_store(lambda current: current.list_sources())
 
+    @server.tool(
+        name="get_operator_guide",
+        annotations=READ_ONLY_ANNOTATIONS,
+        description=_GUIDE_DESCRIPTION,
+    )
+    def get_operator_guide(
+        topic: str | None = None,
+        limit: int = 60,
+    ) -> dict[str, Any]:
+        """List operator-development topics, or resolve one to indexed documents."""
+
+        from . import opdev
+
+        if topic is None:
+            return {"topics": opdev.catalogue(), "usage": opdev.usage()}
+
+        def resolve(current: Any) -> dict[str, Any]:
+            resolved = opdev.resolve_topic(current, topic, limit=limit)
+            if resolved is None:
+                raise ValueError(
+                    "unknown operator topic; valid slugs: "
+                    + ", ".join(opdev.topic_slugs())
+                )
+            return resolved
+
+        return with_store(resolve)
+
     return {
         "search_metax_docs": search_metax_docs,
         "get_metax_document": get_metax_document,
         "get_metax_section": get_metax_section,
         "list_metax_sources": list_metax_sources,
+        "get_operator_guide": get_operator_guide,
     }
 
 
@@ -182,6 +223,7 @@ search_metax_docs = _registered_tools["search_metax_docs"]
 get_metax_document = _registered_tools["get_metax_document"]
 get_metax_section = _registered_tools["get_metax_section"]
 list_metax_sources = _registered_tools["list_metax_sources"]
+get_operator_guide = _registered_tools["get_operator_guide"]
 
 
 def run_stdio(db_path: str | os.PathLike[str] | None = None) -> None:
@@ -192,6 +234,7 @@ def run_stdio(db_path: str | os.PathLike[str] | None = None) -> None:
 
 __all__ = [
     "create_server",
+    "get_operator_guide",
     "get_metax_document",
     "get_metax_section",
     "list_metax_sources",

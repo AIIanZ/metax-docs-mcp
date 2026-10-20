@@ -26,6 +26,10 @@ class FakeStore:
         self.calls.append(("list_sources", args, kwargs))
         return self.result or {"official": {"documents": 1}}
 
+    def find_documents(self, *args, **kwargs):
+        self.calls.append(("find_documents", args, kwargs))
+        return []
+
     def close(self):
         self.calls.append(("close", (), {}))
 
@@ -127,3 +131,31 @@ def test_missing_document_is_a_cli_error(monkeypatch, capsys, tmp_path):
 
     assert status == 1
     assert "document not found" in capsys.readouterr().err
+
+
+def test_opdev_lists_topics_and_resolves_one(monkeypatch, capsys, tmp_path):
+    fake = FakeStore()
+    monkeypatch.setattr(cli, "_open_readonly_store", lambda path: fake)
+
+    status = cli.main(["--db", str(tmp_path / "index.sqlite3"), "opdev"])
+    assert status == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert {entry["slug"] for entry in payload["topics"]} >= {"benchmark", "optimize-c600"}
+    # Listing topics must not touch the index; only closing the store is recorded.
+    assert [call[0] for call in fake.calls] == ["close"]
+
+    status = cli.main(["--db", str(tmp_path / "index.sqlite3"), "opdev", "benchmark", "--limit", "5"])
+    assert status == 0
+    resolved = json.loads(capsys.readouterr().out)
+    assert resolved["topic"]["slug"] == "benchmark"
+    lookups = [call for call in fake.calls if call[0] == "find_documents"]
+    assert lookups and all(call[2]["limit"] == 5 for call in lookups)
+
+
+def test_opdev_unknown_topic_is_a_cli_error(monkeypatch, capsys, tmp_path):
+    fake = FakeStore()
+    monkeypatch.setattr(cli, "_open_readonly_store", lambda path: fake)
+
+    status = cli.main(["--db", str(tmp_path / "index.sqlite3"), "opdev", "nope"])
+    assert status == 1
+    assert "unknown operator topic" in capsys.readouterr().err

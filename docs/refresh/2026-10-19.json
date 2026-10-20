@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "week_start": "2026-10-19",
+  "published_at": "2026-10-19T02:17:44.673063+00:00",
+  "published": true,
+  "scope": {
+    "official": {
+      "seeds": [
+        "https://developer.metax-tech.com/doc"
+      ],
+      "max_pages": 1000,
+      "discover": true,
+      "series": [
+        "快速上手指南",
+        "MXMACA C++编程指南",
+        "运行时API编程指南",
+        "MXMACA运行时API参考",
+        "mxcc编译器用户指南",
+        "MXMACA 编译器内建函数编程指南",
+        "mcProfiler使用手册",
+        "mcTracer使用手册",
+        "mcTriton用户指南",
+        "MCCL编程指南",
+        "AI推理用户手册"
+      ]
+    },
+    "github": {
+      "organization": "MetaX-MACA",
+      "repositories": [
+        "vLLM-metax",
+        "sglang",
+        "maca-samples",
+        "gpuBenchmark",
+        "mcoplib",
+        "mcTlass",
+        "mcTriton",
+        "flashattn",
+        "McFlashInfer",
+        "op_optimization",
+        "TileOPs-Metax",
+        "TileKernels-Metax",
+        "tile-ai/tilelang-metax"
+      ],
+      "max_files_per_repo": 10000,
+      "include_code": true,
+      "transport": "archive",
+      "max_archive_bytes": 134217728,
+      "exclude_globs": [
+        "**/tokenizer.json",
+        "test/manual/double-sparsity-config-*.json",
+        "3rdparty/hip-headers/include/hip/amd_detail/hip_prof_str.h",
+        "src/cuda/stubs/vendor/cuda.h"
+      ],
+      "repository_refs": {
+        "MetaX-MACA/sglang": "release/v0.5.14"
+      },
+      "repository_exclude_globs": {
+        "MetaX-MACA/McFlashInfer": [
+          "3rdparty/**"
+        ],
+        "MetaX-MACA/flashattn": [
+          "csrc/mctlass/**"
+        ],
+        "MetaX-MACA/mcTriton": [
+          "third_party/amd/**",
+          "third_party/nvidia/**",
+          "third_party/json/**",
+          "third_party/pybind11/**",
+          "third_party/proton/**"
+        ]
+      }
+    },
+    "docker": {
+      "seeds": [
+        "https://developer.metax-tech.com/softnova/docker?chip_name=%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97&package_kind=MXMACA&dimension=docker&deliver_type=%E5%88%86%E5%B1%82%E5%8C%85"
+      ],
+      "page_size": 100,
+      "max_pages": 20,
+      "max_items": 2000
+    },
+    "http": {
+      "timeout": 60,
+      "retries": 2,
+      "max_document_chars": 500000
+    }
+  },
+  "counts": {
+    "docker": 14,
+    "github": 15062,
+    "official": 67
+  },
+  "before_counts": {
+    "docker": 14,
+    "github": 14730,
+    "official": 67
+  },
+  "changes": {
+    "added": 371,
+    "removed": 39,
+    "updated": 3618
+  },
+  "changed_text_for_existing_ids": 434,
+  "revision_changes": [
+    {
+      "repository": "MetaX-MACA/TileOPs-Metax",
+      "before": {
+        "version": "dev",
+        "revision": "4df32b284f4695b1ee307517cd5ad0fd3e1d22a1"
+      },
+      "after": {
+        "version": "dev",
+        "revision": "717f04c206384828ed23ab1e40c547a836a17db9"
+      }
+    },
+    {
+      "repository": "MetaX-MACA/vLLM-metax",
+      "before": {
+        "version": "master",
+        "revision": "cec91763dbe968fe4478fc066f57ecf5877c3965"
+      },
+      "after": {
+        "version": "master",
+        "revision": "9f03f6c8d19d0264d965fcb3d89dff81e13e512d"
+      }
+    },
+    {
+      "repository": "tile-ai/tilelang-metax",
+      "before": {
+        "version": "dev",
+        "revision": "c6074aa115355605fbe971f485405d783f384443"
+      },
+      "after": {
+        "version": "dev",
+        "revision": "90d49f353ec88bd0d346474f143003d865dd3b79"
+      }
+    }
+  ],
+  "github_revisions": {
+    "MetaX-MACA/vLLM-metax": {
+      "version": "master",
+      "revision": "9f03f6c8d19d0264d965fcb3d89dff81e13e512d"
+    },
+    "MetaX-MACA/sglang": {
+      "version": "release/v0.5.14",
+      "revision": "052dcfb5f7d968a121497b3fed82b1c563d856e8"
+    },
+    "MetaX-MACA/maca-samples": {
+      "version": "main",
+      "revision": "e6de14cc4d9248768d066a1475450ed7705fd766"
+    },
+    "MetaX-MACA/gpuBenchmark": {
+      "version": "main",
+      "revision": "c036397faf50b02173820f4ceba61771c473c181"
+    },
+    "MetaX-MACA/mcoplib": {
+      "version": "main",
+      "revision": "f325795aac1ee71cd51111b065f6dd175246961d"
+    },
+    "MetaX-MACA/mcTlass": {
+      "version": "2.20.2",
+      "revision": "3d125cdd2ae265d6f76c5f5ac3d2cadcd2bfb47d"
+    },
+    "MetaX-MACA/mcTriton": {
+      "version": "3.0",
+      "revision": "7dd407c26568fceaca44cb894138e5202d369805"
+    },
+    "MetaX-MACA/flashattn": {
+      "version": "2.25.2",
+      "revision": "8f279843ce18cb5c1c9e695267e28060d0b6273c"
+    },
+    "MetaX-MACA/McFlashInfer": {
+      "version": "master",
+      "revision": "4d23f89fab846c48f40dc096a90fcb2b3ea3e006"
+    },
+    "MetaX-MACA/op_optimization": {
+      "version": "master",
+      "revision": "67875de0d2f159f7380ad6471a34bf8c6551a8f1"
+    },
+    "MetaX-MACA/TileOPs-Metax": {
+      "version": "dev",
+      "revision": "717f04c206384828ed23ab1e40c547a836a17db9"
+    },
+    "MetaX-MACA/TileKernels-Metax": {
+      "version": "dev",
+      "revision": "0266ab740980de7dc03a828b8259cd73d100c2eb"
+    },
+    "tile-ai/tilelang-metax": {
+      "version": "dev",
+      "revision": "90d49f353ec88bd0d346474f143003d865dd3b79"
+    }
+  },
+  "official_series": [
+    {
+      "series": "AI推理用户手册",
+      "version": "3.8.0.x",
+      "count": 16
+    },
+    {
+      "series": "MCCL编程指南",
+      "version": "3.9.1",
+      "count": 6
+    },
+    {
+      "series": "MXMACA C++编程指南",
+      "version": "3.9.1",
+      "count": 5
+    },
+    {
+      "series": "MXMACA 编译器内建函数编程指南",
+      "version": "3.9.1",
+      "count": 4
+    },
+    {
+      "series": "MXMACA运行时API参考",
+      "version": "3.9.1",
+      "count": 5
+    },
+    {
+      "series": "mcProfiler使用手册",
+      "version": "3.9.1",
+      "count": 3
+    },
+    {
+      "series": "mcTracer使用手册",
+      "version": "3.9.1",
+      "count": 4
+    },
+    {
+      "series": "mcTriton用户指南",
+      "version": "3.9.1",
+      "count": 5
+    },
+    {
+      "series": "mxcc编译器用户指南",
+      "version": "3.9.1",
+      "count": 7
+    },
+    {
+      "series": "快速上手指南",
+      "version": "3.9.1",
+      "count": 6
+    },
+    {
+      "series": "运行时API编程指南",
+      "version": "3.9.1",
+      "count": 6
+    }
+  ],
+  "validation": {
+    "failed": 0,
+    "partial": false,
+    "truncated": false,
+    "stdio_queries_passed": 17,
+    "operator_guide_topics": 17,
+    "operator_guide_references": 62,
+    "connected_mcp_verified": true,
+    "offline_tests_passed": 62
+  },
+  "recovery": {
+    "error": "GitHub flashattn API 503",
+    "recovered": true,
+    "method": "Reuse complete batches; discard incomplete batch rows; rebuild remaining batches; run the full verification and publication gate."
+  }
+}
