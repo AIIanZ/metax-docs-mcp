@@ -725,6 +725,94 @@ class Store:
             )
         return results
 
+    def find_documents(
+        self,
+        *,
+        source: str | None = None,
+        repository: str | None = None,
+        path: str | None = None,
+        path_prefix: str | None = None,
+        title: str | None = None,
+        limit: int = MAX_SEARCH_LIMIT,
+    ) -> list[dict[str, Any]]:
+        """Return bounded metadata for documents matched by exact provenance.
+
+        This is the deterministic counterpart to :meth:`search`: it exists for
+        curated maps (for example the operator development guide) that must
+        resolve a known repository path or manual title, not rank free text.
+        ``path`` matches a whole path, ``path_prefix`` a path prefix and
+        ``title`` a Unicode-normalised substring.  Only metadata is returned so
+        a lookup never pulls a whole manual into memory.
+        """
+
+        source, repository, _ = self._validate_search_filters(source, repository, None)
+        path = _validate_optional_filter(path, "path")
+        path_prefix = _validate_optional_filter(path_prefix, "path_prefix")
+        title = _validate_optional_filter(title, "title")
+        limit = _bounded_limit(limit, default=MAX_SEARCH_LIMIT, maximum=MAX_SEARCH_LIMIT)
+
+        clauses: list[str] = []
+        parameters: list[str] = []
+        if source is not None:
+            clauses.append("source = ?")
+            parameters.append(source)
+        if repository is not None:
+            clauses.append("repository = ?")
+            parameters.append(repository)
+        if path is not None:
+            clauses.append("path = ?")
+            parameters.append(path)
+        if path_prefix is not None:
+            escaped = (
+                path_prefix.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+            )
+            clauses.append("path LIKE ? ESCAPE '\\'")
+            parameters.append(f"{escaped}%")
+        where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        rows = self._conn.execute(
+            f"""
+            SELECT id, source, title, url, version, repository, path, revision,
+                   fetched_at, metadata_json, length(text) AS text_length
+            FROM documents {where}
+            LIMIT ?
+            """,
+            [*parameters, MAX_SEARCH_CANDIDATES],
+        ).fetchall()
+
+        wanted_title = _normalise(title) if title else None
+        matches: list[dict[str, Any]] = []
+        for row in rows:
+            if wanted_title is not None and wanted_title not in _normalise(str(row["title"])):
+                continue
+            metadata = _json_object(row["metadata_json"])
+            matches.append(
+                {
+                    "id": row["id"],
+                    "source": row["source"],
+                    "title": row["title"],
+                    "url": row["url"],
+                    "version": row["version"],
+                    "repository": row["repository"],
+                    "path": row["path"],
+                    "revision": row["revision"],
+                    "fetched_at": row["fetched_at"],
+                    "content_kind": metadata.get("content_kind"),
+                    "text_length": int(row["text_length"] or 0),
+                }
+            )
+        if wanted_title is not None:
+            # A manual title such as "沐曦通用GPU mcProfiler用户手册" is shared
+            # by the index page and every section page; surface the exact
+            # title first so a lookup returns the entry point before excerpts.
+            matches.sort(
+                key=lambda item: (
+                    _normalise(str(item["title"])) != wanted_title,
+                    len(str(item["title"])),
+                    str(item["path"]),
+                )
+            )
+        return matches[:limit]
+
     @staticmethod
     def _document_response(row: sqlite3.Row, text: str, *, offset: int, limit: int) -> dict[str, Any]:
         chunk = text[offset : offset + limit]

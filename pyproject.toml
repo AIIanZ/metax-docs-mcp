@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "metax-docs-mcp"
-version = "0.1.0"
-description = "Local MCP server and CLI for MetaX official and MetaX-MACA documentation"
+version = "0.2.0"
+description = "Local MCP server for MACA programming docs and MetaX vLLM/SGLang source code"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import base64
 import binascii
+import fnmatch
 import hashlib
 import html as html_lib
 import json
@@ -62,7 +63,7 @@ __all__ = ["sync_sources"]
 # prevent a malformed config from turning a one-shot sync into an unbounded
 # crawler or a memory exhaustion path.
 HARD_MAX_PAGES = 1_000
-HARD_MAX_FILES_PER_REPO = 5_000
+HARD_MAX_FILES_PER_REPO = 10_000
 HARD_MAX_REPOSITORIES = 32
 HARD_MAX_SEEDS = 32
 HARD_MAX_REDIRECTS = 3
@@ -70,9 +71,11 @@ HARD_MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 HARD_MAX_DOCUMENT_CHARS = 500_000
 DEFAULT_MAX_RESPONSE_BYTES = 4 * 1024 * 1024
 DEFAULT_MAX_DOCUMENT_CHARS = 250_000
-DEFAULT_USER_AGENT = "metax-docs-mcp/0.1 (bounded public-source indexer)"
+DEFAULT_USER_AGENT = "metax-docs-mcp/0.2 (bounded public-source indexer)"
 GITHUB_API_ROOT = "https://api.github.com"
 GITHUB_WEB_ROOT = "https://github.com"
+EXTERNAL_GITHUB_REPOSITORIES = {"tile-ai/tilelang-metax"}
+HARD_MAX_ARCHIVE_BYTES = 256 * 1024 * 1024
 OFFICIAL_HOST = "developer.metax-tech.com"
 _REDIRECT_STATUSES = {301, 302, 303, 307, 308}
 _RETRY_STATUSES = {408, 425, 429, 500, 502, 503, 504, 520, 521, 522, 523, 524}
@@ -935,6 +938,14 @@ def _sync_official(
     if directory_seeds and discover:
         try:
             catalog_entries, catalog_reasons = _official_catalog_entries(fetcher)
+            series = config.get("series")
+            if series is not None:
+                if not isinstance(series, list) or not all(isinstance(name, str) for name in series):
+                    raise _IngestionError("official.series must be a list of exact series names")
+                available = {entry.metadata.get("series_name") for entry in catalog_entries}
+                for missing in sorted(set(series) - available):
+                    _add_error(stats, url=directory_seeds[0], error=f"official series not found: {missing}")
+                catalog_entries = [entry for entry in catalog_entries if entry.metadata.get("series_name") in series]
             for entry in catalog_entries:
                 if entry.url not in queued:
                     queue.append(entry.url)
@@ -1054,7 +1065,7 @@ def _discover_github_repositories(
         return []
 
 
-def _github_files(tree_payload: Any, *, include_code: bool, max_files: int) -> tuple[list[_GithubFile], bool]:
+def _github_files(tree_payload: Any, *, include_code: bool, max_files: int, exclude_globs: Sequence[str] = ()) -> tuple[list[_GithubFile], bool]:
     if not isinstance(tree_payload, Mapping) or not isinstance(tree_payload.get("tree"), list):
         raise _IngestionError("GitHub tree response has no tree")
     candidates: list[_GithubFile] = []
@@ -1063,6 +1074,8 @@ def _github_files(tree_payload: Any, *, include_code: bool, max_files: int) -> t
             continue
         path = str(item.get("path", ""))
         if not _github_path_allowed(path, include_code):
+            continue
+        if any(fnmatch.fnmatchcase(path, pattern) for pattern in exclude_globs):
             continue
         sha = str(item.get("sha", ""))
         if not sha:
@@ -1096,7 +1109,9 @@ def _github_document(
     content_type: str,
     max_document_chars: int,
 ) -> Any:
-    text = _normalise_text(text, max_document_chars)
+    is_documentation = _github_path_allowed(item.path, False)
+    original_chars = len(text)
+    text = _normalise_text(text, max_document_chars) if is_documentation else text[:max_document_chars]
     encoded_path = quote(item.path, safe="/")
     url = f"{GITHUB_WEB_ROOT}/{quote(organization, safe='')}/{quote(repository, safe='')}/blob/{quote(revision, safe='')}/{encoded_path}"
     repository_full_name = f"{organization}/{repository}"
@@ -1108,6 +1123,8 @@ def _github_document(
         "content_type": content_type,
         "kind": "github_file",
         "branch": branch,
+        "content_kind": "documentation" if is_documentation else "code",
+        "text_truncated": original_chars > max_document_chars,
     }
     return _build_document(
         # The branch/path identity is stable across default-branch updates;
@@ -1115,7 +1132,7 @@ def _github_document(
         # auditable.  Historical commit indexing is intentionally out of scope.
         id=_stable_id("github", f"{repository_full_name}:{item.path}"),
         source="github",
-        title=_github_title(item.path, text),
+        title=_github_title(item.path, text) if is_documentation else item.path,
         url=url,
         text=text,
         version=branch,
@@ -1134,12 +1151,42 @@ def _sync_github(
     stats: dict[str, Any],
     *,
     max_document_chars: int,
+    archive_fetcher: _HttpFetcher | None = None,
 ) -> None:
     organization = str(config.get("organization") or "MetaX-MACA").strip()
     if organization.lower() != "metax-maca":
         _add_error(stats, url="", error="GitHub organization must be MetaX-MACA")
         return
     include_code = bool(config.get("include_code", False))
+    exclude_globs = config.get("exclude_globs", [])
+    if not isinstance(exclude_globs, list) or not all(isinstance(pattern, str) for pattern in exclude_globs):
+        _add_error(stats, url="", error="github.exclude_globs must be a list of patterns")
+        return
+    transport = config.get("transport", "api")
+    if transport not in {"api", "archive"}:
+        _add_error(stats, url="", error="github.transport must be api or archive")
+        return
+    repository_refs = config.get("repository_refs", {})
+    if not isinstance(repository_refs, Mapping) or not all(
+        isinstance(name, str) and isinstance(ref, str) and re.fullmatch(r"[^\s]{1,200}", ref)
+        for name, ref in repository_refs.items()
+    ):
+        _add_error(stats, url="", error="github.repository_refs must map repository names to nonempty refs")
+        return
+    repository_exclude_globs = config.get("repository_exclude_globs", {})
+    if not isinstance(repository_exclude_globs, Mapping) or not all(
+        isinstance(name, str)
+        and isinstance(patterns, Sequence)
+        and not isinstance(patterns, (str, bytes, bytearray))
+        and all(isinstance(pattern, str) for pattern in patterns)
+        for name, patterns in repository_exclude_globs.items()
+    ):
+        _add_error(
+            stats,
+            url="",
+            error="github.repository_exclude_globs must map repository names to pattern lists",
+        )
+        return
     max_files = _bounded_int(config.get("max_files_per_repo", 100), 100, 0, HARD_MAX_FILES_PER_REPO)
     raw_repositories = config.get("repositories")
     repositories: list[str] = []
@@ -1153,7 +1200,10 @@ def _sync_github(
         else:
             for raw in list(raw_repositories)[:HARD_MAX_REPOSITORIES]:
                 try:
-                    name = _normalise_repository(raw, organization)
+                    if str(raw).lower() in EXTERNAL_GITHUB_REPOSITORIES:
+                        name = str(raw).lower()
+                    else:
+                        name = _normalise_repository(raw, organization)
                 except _IngestionError as exc:
                     _add_error(stats, url="", error=exc, path=str(raw))
                     continue
@@ -1170,12 +1220,13 @@ def _sync_github(
 
     token = os.environ.get("GITHUB_TOKEN", "")
     for repository in repositories:
-        repo_root = f"{GITHUB_API_ROOT}/repos/{quote(organization, safe='')}/{quote(repository, safe='')}"
+        owner, repo_name = repository.split("/", 1) if "/" in repository else (organization, repository)
+        repo_root = f"{GITHUB_API_ROOT}/repos/{quote(owner, safe='')}/{quote(repo_name, safe='')}"
         try:
             repo_payload, _ = _github_json(fetcher, repo_root)
             if not isinstance(repo_payload, Mapping) or repo_payload.get("private") is True:
                 raise _IngestionError("repository is not public")
-            branch = str(repo_payload.get("default_branch") or "main")
+            branch = str(repository_refs.get(f"{owner}/{repo_name}", repository_refs.get(repo_name, repo_payload.get("default_branch") or "main")))
             if not re.fullmatch(r"[^\s]{1,200}", branch):
                 raise _IngestionError("invalid repository default branch")
             commit_url = f"{repo_root}/commits/{quote(branch, safe='')}"
@@ -1187,11 +1238,30 @@ def _sync_github(
                 raise _IngestionError("GitHub commit response has no valid SHA")
             tree_url = f"{repo_root}/git/trees/{quote(revision, safe='')}?recursive=1"
             tree_payload, tree_response = _github_json(fetcher, tree_url)
-            items, tree_truncated = _github_files(tree_payload, include_code=include_code, max_files=max_files)
+            # Vendored third-party trees (mcTlass copies, upstream backends)
+            # are excluded per repository so an operator-library snapshot is
+            # not duplicated across forks; the shared global patterns still
+            # apply to every repository.
+            repository_patterns = (
+                repository_exclude_globs.get(f"{owner}/{repo_name}")
+                or repository_exclude_globs.get(repo_name)
+                or []
+            )
+            effective_excludes = [*exclude_globs, *repository_patterns]
+            items, tree_truncated = _github_files(tree_payload, include_code=include_code, max_files=max_files, exclude_globs=effective_excludes)
             if tree_response.truncated:
                 _mark_truncated(stats, f"GitHub response body limit for {repository}")
             if tree_truncated:
                 _mark_truncated(stats, f"GitHub tree/file limit for {repository}")
+            if transport == "archive":
+                if archive_fetcher is None:
+                    raise _IngestionError("GitHub archive fetcher is unavailable")
+                _sync_github_archive(
+                    store, archive_fetcher, stats, owner=owner, repository=repo_name,
+                    branch=branch, revision=revision, items=items,
+                    max_document_chars=max_document_chars,
+                )
+                continue
             for item in items:
                 stats["discovered"] += 1
                 blob_url = f"{repo_root}/git/blobs/{quote(item.sha, safe='')}"
@@ -1212,8 +1282,8 @@ def _sync_github(
                     if len(text) > max_document_chars:
                         _mark_truncated(stats, f"document size limit for {repository}/{item.path}")
                     document = _github_document(
-                        organization=organization,
-                        repository=repository,
+                        organization=owner,
+                        repository=repo_name,
                         branch=branch,
                         revision=revision,
                         item=item,
@@ -1227,6 +1297,45 @@ def _sync_github(
         except Exception as exc:
             _add_error(stats, url=repo_root, error=exc, path=repository)
             continue
+
+
+def _sync_github_archive(
+    store: Any, fetcher: _HttpFetcher, stats: dict[str, Any], *,
+    owner: str, repository: str, branch: str, revision: str,
+    items: list[_GithubFile], max_document_chars: int,
+) -> None:
+    from .github_archive import iter_archive_files
+
+    if not items:
+        return
+    url = f"https://codeload.github.com/{quote(owner, safe='')}/{quote(repository, safe='')}/tar.gz/{revision}"
+    response = fetcher.get(url)
+    if response.truncated:
+        _mark_truncated(stats, f"GitHub archive byte limit for {owner}/{repository}")
+        raise _IngestionError("GitHub archive exceeded compressed byte limit")
+    selected = {item.path: item for item in items}
+    for path, raw in iter_archive_files(response.content, set(selected)):
+        stats["discovered"] += 1
+        item = selected[path]
+        try:
+            # A git blob hash covers the header and original bytes. Verify the
+            # snapshot against the commit tree before trusting its provenance.
+            blob_sha = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
+            if blob_sha != item.sha:
+                raise _IngestionError("GitHub archive file does not match commit tree")
+            if b"\x00" in raw[:8_192]:
+                raise _IngestionError("binary GitHub file is not indexable")
+            text = raw.decode("utf-8", "replace")
+            if len(text) > max_document_chars:
+                _mark_truncated(stats, f"document size limit for {owner}/{repository}/{path}")
+            document = _github_document(
+                organization=owner, repository=repository, branch=branch,
+                revision=revision, item=item, text=text,
+                content_type="text/plain; charset=utf-8", max_document_chars=max_document_chars,
+            )
+            _store_document(store, document, stats)
+        except Exception as exc:
+            _add_error(stats, url=url, error=exc, path=path)
 
 
 def sync_sources(store: Any, config: dict[str, Any], source: str = "all") -> dict[str, Any]:
@@ -1318,7 +1427,18 @@ def sync_sources(store: Any, config: dict[str, Any], source: str = "all") -> dic
                 if name == "official":
                     _sync_official(store, cfg, fetcher, reports[name], max_document_chars=max_document_chars)
                 elif name == "github":
-                    _sync_github(store, cfg, fetcher, reports[name], max_document_chars=max_document_chars)
+                    archive_fetcher = None
+                    if cfg.get("transport") == "archive":
+                        # Never send the API token to the archive host.
+                        archive_client = _new_client(timeout, client_headers)
+                        clients.append(archive_client)
+                        archive_fetcher = _HttpFetcher(
+                            archive_client, allowed_hosts={"codeload.github.com"},
+                            retries=retries,
+                            max_response_bytes=_bounded_int(cfg.get("max_archive_bytes"), 128 * 1024 * 1024, 16 * 1024, HARD_MAX_ARCHIVE_BYTES),
+                            rate_limiter=_RateLimiter(rate_interval),
+                        )
+                    _sync_github(store, cfg, fetcher, reports[name], max_document_chars=max_document_chars, archive_fetcher=archive_fetcher)
                 else:
                     from .docker_source import sync_docker
                     sync_docker(store, cfg, fetcher, reports[name], max_document_chars=max_document_chars)

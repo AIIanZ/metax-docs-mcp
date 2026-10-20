@@ -3,16 +3,67 @@
     "seeds": [
       "https://developer.metax-tech.com/doc"
     ],
-    "max_pages": 100,
-    "discover": true
+    "max_pages": 1000,
+    "discover": true,
+    "series": [
+      "快速上手指南",
+      "MXMACA C++编程指南",
+      "运行时API编程指南",
+      "MXMACA运行时API参考",
+      "mxcc编译器用户指南",
+      "MXMACA 编译器内建函数编程指南",
+      "mcProfiler使用手册",
+      "mcTracer使用手册",
+      "mcTriton用户指南",
+      "MCCL编程指南",
+      "AI推理用户手册"
+    ]
   },
   "github": {
     "organization": "MetaX-MACA",
     "repositories": [
-      "maca-samples"
+      "vLLM-metax",
+      "sglang",
+      "maca-samples",
+      "gpuBenchmark",
+      "mcoplib",
+      "mcTlass",
+      "mcTriton",
+      "flashattn",
+      "McFlashInfer",
+      "op_optimization",
+      "TileOPs-Metax",
+      "TileKernels-Metax",
+      "tile-ai/tilelang-metax"
     ],
-    "max_files_per_repo": 100,
-    "include_code": false
+    "max_files_per_repo": 10000,
+    "include_code": true,
+    "transport": "archive",
+    "max_archive_bytes": 134217728,
+    "exclude_globs": [
+      "**/tokenizer.json",
+      "test/manual/double-sparsity-config-*.json",
+      "3rdparty/hip-headers/include/hip/amd_detail/hip_prof_str.h",
+      "src/cuda/stubs/vendor/cuda.h"
+    ],
+    "repository_refs": {
+      "MetaX-MACA/sglang": "release/v0.5.14"
+    },
+    "repository_exclude_globs": {
+      "MetaX-MACA/McFlashInfer": [
+        "3rdparty/**"
+      ],
+      "MetaX-MACA/flashattn": [
+        "csrc/mctlass/**"
+      ],
+      "MetaX-MACA/mcTriton": [
+        "third_party/amd/**",
+        "third_party/nvidia/**",
+        "third_party/json/**",
+        "third_party/pybind11/**",
+        "third_party/proton/**"
+      ]
+    }
   },
   "docker": {
     "seeds": [
@@ -23,7 +74,8 @@
     "max_items": 2000
   },
   "http": {
-    "timeout": 20,
-    "retries": 2
+    "timeout": 60,
+    "retries": 2,
+    "max_document_chars": 500000
   }
 }
