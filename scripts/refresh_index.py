@@ -20,8 +20,10 @@ import sqlite3
 import subprocess
 import sys
 import time
+from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
 import httpx
@@ -114,24 +116,43 @@ def wait_for_github_reset(label: str) -> None:
     time.sleep(delay)
 
 
-def sync_with_retry(staging: Path, config_path: Path, directory: Path, label: str) -> dict:
-    """Synchronize one config file, retrying only GitHub rate-limit failures."""
+def copy_database(source: Path, destination: Path) -> None:
+    """Copy the complete SQLite state, including sections and FTS tables.
 
-    waits = 0
-    while True:
-        output = directory / f"sync-{label}.json"
-        errors = directory / f"sync-{label}.stderr.log"
-        command = [str(ROOT / ".venv/bin/metax-docs-mcp"), "--db", str(staging), "sync", "--config", str(config_path)]
-        exit_code = int(run_logged(command, output, errors) or 0)
-        report = read_report(output)
-        if exit_code == 0 and not report.get("failed"):
-            return report
-        if not rate_limited(report):
-            raise RuntimeError(f"Command exited {exit_code}; see {output} and {errors}")
-        waits += 1
-        if waits > MAX_RATE_LIMIT_WAITS:
-            raise RuntimeError(f"GitHub API rate limit persisted after {waits - 1} waits; see {output}")
-        wait_for_github_reset(label)
+    Opening a missing staging file creates an empty baseline for the first
+    batch. SQLite backup also includes committed pages in a source WAL.
+    """
+
+    with closing(sqlite3.connect(source)) as original:
+        with closing(sqlite3.connect(destination)) as copied:
+            original.backup(copied)
+
+
+def sync_with_retry(staging: Path, config_path: Path, directory: Path, label: str) -> dict:
+    """Retry rate-limited batches from their original database checkpoint."""
+
+    with TemporaryDirectory(prefix=f"checkpoint-{label}-", dir=directory) as saved:
+        checkpoint = Path(saved) / "index.sqlite3"
+        copy_database(staging, checkpoint)
+        waits = 0
+        while True:
+            output = directory / f"sync-{label}.json"
+            errors = directory / f"sync-{label}.stderr.log"
+            command = [str(ROOT / ".venv/bin/metax-docs-mcp"), "--db", str(staging), "sync", "--config", str(config_path)]
+            exit_code = int(run_logged(command, output, errors) or 0)
+            report = read_report(output)
+            if exit_code == 0 and not report.get("failed"):
+                return report
+            if not rate_limited(report):
+                raise RuntimeError(f"Command exited {exit_code}; see {output} and {errors}")
+            waits += 1
+            if waits > MAX_RATE_LIMIT_WAITS:
+                raise RuntimeError(f"GitHub API rate limit persisted after {waits - 1} waits; see {output}")
+            # A new sync resolves branch heads again. Discard every write from
+            # the failed attempt, while retaining completed earlier batches,
+            # so files deleted upstream cannot survive under an old revision.
+            copy_database(checkpoint, staging)
+            wait_for_github_reset(label)
 
 
 def merge_reports(reports: list[dict]) -> dict:

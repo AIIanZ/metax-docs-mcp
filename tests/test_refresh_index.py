@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -191,3 +192,92 @@ def test_non_rate_limit_failure_is_not_retried(refresh, monkeypatch, tmp_path):
     monkeypatch.setattr(refresh, "run_logged", fake_command)
     assert refresh.refresh() == 1
     assert waits == []
+
+
+@pytest.mark.parametrize("earlier_batches", [False, True])
+@pytest.mark.parametrize("rate_failures", [1, 2])
+def test_retry_publishes_only_the_latest_snapshot(
+    refresh, monkeypatch, tmp_path, earlier_batches, rate_failures
+):
+    repositories = ["a", "b"]
+    config = {"github": {"repositories": repositories}}
+    if earlier_batches:
+        repositories[:0] = ["prior", "another"]
+        config["official"] = {}
+    (tmp_path / "examples/sources.json").write_text(json.dumps(config))
+    monkeypatch.setenv(refresh.GITHUB_BATCH_ENV, "2")
+    waits = []
+    monkeypatch.setattr(refresh, "wait_for_github_reset", waits.append)
+    attempts = 0
+
+    def put(db, repository, path, revision, text):
+        store = Store(db)
+        try:
+            store.upsert(Document(
+                id=f"{repository}/{path}", source="github", title=path,
+                repository=f"MetaX-MACA/{repository}", path=path,
+                revision=revision, text=text,
+                url=f"https://github.com/MetaX-MACA/{repository}/blob/{revision}/{path}",
+            ))
+        finally:
+            store.close()
+
+    def fake_command(command, output, errors):
+        nonlocal attempts
+        db = Path(command[2])
+        if "--config" not in command:
+            # Verify the candidate actually exposed to the publication gate.
+            db = Path(command[-1])
+            with sqlite3.connect(db) as conn:
+                assert conn.execute(
+                    "SELECT path, revision FROM documents WHERE repository='MetaX-MACA/a'"
+                ).fetchall() == [("keep.py", f"revision-{rate_failures + 1}")]
+                assert conn.execute(
+                    "SELECT count(*) FROM documents_fts WHERE document_id LIKE 'a/deleted-%'"
+                ).fetchone()[0] == 0
+                assert conn.execute(
+                    "SELECT count(*) FROM sections WHERE document_id LIKE 'a/deleted-%'"
+                ).fetchone()[0] == 0
+            output.write_text("{}")
+            return 0
+        selected = json.loads(Path(command[-1]).read_text())
+        if "official" in selected:
+            seed(db, "official-prior")
+        elif selected["github"]["repositories"] == ["prior", "another"]:
+            for name in ("prior", "another"):
+                put(db, name, "README.md", "prior-revision", "# Prior batch\nretained")
+        else:
+            attempts += 1
+            revision = f"revision-{attempts}"
+            put(db, "a", "keep.py", revision, "# Current\nretained")
+            if attempts <= rate_failures:
+                # A succeeds; B hits the limit. Before each retry the branch
+                # advances, removing this attempt's file from A's next commit.
+                put(db, "a", f"deleted-{attempts}.py", revision, "# Stale\nstale_snapshot")
+                output.write_text(json.dumps({
+                    "failed": 1, "partial": True,
+                    "errors": [{"url": "https://api.github.com/repos/MetaX-MACA/b",
+                                "error": "HTTP 403"}],
+                }))
+                return 1
+            put(db, "b", "README.md", revision, "# Current\ncomplete")
+        output.write_text('{"failed": 0, "partial": false}')
+        return 0
+
+    monkeypatch.setattr(refresh, "run_logged", fake_command)
+    assert refresh.refresh() == 0
+    assert attempts == rate_failures + 1
+    assert len(waits) == rate_failures
+    store = Store(refresh.LIVE, readonly=True)
+    try:
+        assert not store.search("stale_snapshot")
+        assert store.get_document("a/keep.py")["revision"] == f"revision-{rate_failures + 1}"
+        assert store.get_document("b/README.md")
+        if earlier_batches:
+            assert store.get_document("official-prior")
+            for name in ("prior", "another"):
+                doc = store.get_document(f"{name}/README.md")
+                assert doc["revision"] == "prior-revision"
+                assert store.get_section(doc["id"], "prior-batch")
+    finally:
+        store.close()

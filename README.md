@@ -17,7 +17,7 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'MXMACA' --s
 
 `sync` 的 JSON 结果会报告失败及范围上限。退出码 `0` 表示选定范围完成，`1` 表示存在失败，`2` 表示达到配置上限、范围不完整。首次同步可能只建立部分索引；先看同步报告与 `sources`，不要假设已经覆盖全部官方文档或全部 GitHub 仓库。GitHub 未认证 API 有速率限制；如需 token，使用进程环境变量 `GITHUB_TOKEN`，不要写进配置文件或提交到仓库。
 
-`scripts/refresh_index.py` 会把 GitHub 按仓库分批抓取（默认每批 4 个，可用 `METAX_REFRESH_GITHUB_BATCH` 调整）写进同一个 staging 数据库；某一批只因为 GitHub API 限流失败时，会等到限流重置时间后重试该批，而不是丢弃整轮同步。任何真实的失败、截断或 MCP 验收不通过都会保留原服务索引。
+`scripts/refresh_index.py` 会把 GitHub 按仓库分批抓取，写进同一个 staging 数据库。默认每批 4 个仓库，可用 `METAX_REFRESH_GITHUB_BATCH` 调整。每批开始前保存 SQLite 检查点；仅因 GitHub API 限流失败时，先恢复检查点，再等待限流重置并重试。恢复操作会清除失败尝试写入的正文、章节和全文索引，保留此前已完成的批次，避免等待期间上游删除的文件残留在新索引中。每批检查点在批次结束后清理；抓取期间需要额外容纳一份 staging 数据库的磁盘空间。任何真实的失败、截断或 MCP 验收不通过都会保留原服务索引。
 
 完整重建并验收后更新本地 MCP：
 
