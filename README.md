@@ -29,7 +29,7 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'MXMACA' --s
 
 ## 默认收录范围
 
-`examples/sources.json` 开启源码索引，选择以下仓库的快照。SGLang 固定为 `release/v0.5.14`，其他仓库使用默认分支：
+`examples/sources.json` 开启源码索引，选择以下仓库的快照。SGLang 每次完整刷新会从配置的 MACA 发布分支提示中发现最新稳定适配发布分支，其他仓库使用默认分支：
 
 | 来源 | 内容 |
 | --- | --- |
@@ -60,7 +60,7 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'mcMalloc' -
 uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search '共享内存' --source official
 ```
 
-`github.repository_refs` 可按完整仓库名指定分支、标签或 commit。每个仓库每次选择一个 ref，`version` 返回该 ref，`revision` 返回解析后的 commit。默认 SGLang 的 `main` 是上游代码快照，MACA 适配代码在发布分支，因此使用 `release/v0.5.14`。切换分支时应建立新数据库，避免保留原分支已删除的文件。
+`github.repository_refs` 可按完整仓库名指定分支、标签或 commit。每个仓库每次选择一个 ref，`version` 返回该 ref，`revision` 返回解析后的 commit。配置中的 SGLang `release/v0.5.14` 是稳定适配发布分支的发现种子。每次完整刷新按 `release/vX.Y.Z` 的版本号选择最新稳定分支，再固定并记录解析后的 commit；GitHub 分支发现暂时不可用时回退到配置种子。2026-10-26 实际选择 `release/v0.5.21`，commit 为 `2b6d2c59fe1e171947764dd34172a01a7aeec6ec`。切换分支时应建立新数据库，避免保留原分支已删除的文件。
 
 `github.transport` 支持 `archive` 和 `api`。后者沿用逐文件 GitHub API 下载，适合小范围同步；默认配置使用归档，减少 API 请求。跨组织来源只允许显式列出的 `tile-ai/tilelang-metax`，配置不能任意扩大组织范围。
 
