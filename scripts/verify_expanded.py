@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import sqlite3
 import sys
 from pathlib import Path
@@ -40,7 +41,15 @@ def payload(result):
 
 async def verify(db: Path):
     report = {'database': str(db), 'queries': []}
-    params = StdioServerParameters(command=str(Path(sys.executable).with_name('metax-docs-mcp')), args=['--db', str(db), 'serve'])
+    source_root = str(Path(__file__).resolve().parents[1] / 'src')
+    pythonpath = os.environ.get('PYTHONPATH', '')
+    child_env = dict(os.environ)
+    child_env['PYTHONPATH'] = os.pathsep.join(value for value in (source_root, pythonpath) if value)
+    params = StdioServerParameters(
+        command=str(Path(sys.executable).with_name('metax-docs-mcp')),
+        args=['--db', str(db), 'serve'],
+        env=child_env,
+    )
     async with stdio_client(params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()

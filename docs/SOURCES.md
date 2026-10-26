@@ -359,14 +359,14 @@ JSON {"image_name": "maca:3.8.3.3-ubuntu22.04-amd64", "pull_type": "docker"}
 
 ### source=docker 实现建议与风险
 
-配置可使用上述入口 URL，适配器把入口查询参数转换成 API 请求；也可直接提供同一官方 API URL。默认建议固定为 `chip_name=曦云C500系列`、`package_kind=MXMACA`、`dimension=docker`、`deliver_type=分层包`，并设置有限 `page_size`、`max_pages`、`max_items`。每一条结果生成 `source=docker` 的 `Document`，在 metadata 中保留 `image_name`、`image_ref`、`tag`、`registry`、`pull_command`、芯片、包类型、框架/版本、MXMACA 版本、更新时间和受限的原始标量字段；正文只写这些可检索元数据。
+配置可使用上述入口 URL，适配器把入口查询参数转换成 API 请求；也可直接提供同一官方 API URL。2026-10-26 起目录 API 的 `chip_name` 筛选值使用机型代码；C500 应设为 `MXC500`。旧页面显示名 `曦云C500系列` 仍返回 HTTP 200，但当前 API 会给出 0 条记录。其他筛选固定为 `package_kind=MXMACA`、`dimension=docker`、`deliver_type=分层包`，并设置有限 `page_size`、`max_pages`、`max_items`。每一条结果生成 `source=docker` 的 `Document`，在 metadata 中保留 `image_name`、`image_ref`、`tag`、`registry`、`pull_command`、芯片、包类型、框架/版本、MXMACA 版本、更新时间和受限的原始标量字段；正文只写这些可检索元数据。
 
 API 是前端 bundle 观察到的非稳定公开接口，HTTP 200 仍可能包含 `code != 0`，必须同时校验 HTTP 状态、Content-Type、`code`、`data.results` 类型和分页上限。Docker 镜像体积很大，首版只同步 JSON 元数据，不请求 `container_path`、文件下载或镜像 registry；`size` 仅作为源站字段记录。
 
 可复现的只读请求：
 
 ~~~
-curl -fsSL 'https://developer.metax-tech.com/softnova/api/v3/dlhub/docker_package_info/?chip_name=%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97&package_kind=MXMACA&dimension=docker&deliver_type=%E5%88%86%E5%B1%82%E5%8C%85&page=1&size=10'
+curl -fsSL 'https://developer.metax-tech.com/softnova/api/v3/dlhub/docker_package_info/?chip_name=MXC500&package_kind=MXMACA&dimension=docker&deliver_type=%E5%88%86%E5%B1%82%E5%8C%85&page=1&size=10'
 curl -fsSL 'https://developer.metax-tech.com/softnova/api/v3/dlhub/choice_info/?chip_name=%E6%9B%A6%E4%BA%91C500%E7%B3%BB%E5%88%97&dimension=docker'
 ~~~
 
@@ -381,3 +381,8 @@ SGLang 的默认 `main` 分支在本次快照中没有 MACA 平台检测代码�
 代码库使用固定 commit 的 Git tree 和 `https://codeload.github.com/<owner>/<repo>/tar.gz/<commit>`。每个文件的原始字节与 tree 中的 Git blob SHA 核对后才入库。服务仍只读本地 SQLite；同步归档不会执行其中的构建脚本或命令。固定 commit、分支和内容类型随检索结果及回读元数据返回。
 
 配置排除大型 tokenizer、一个生成的 SGLang 稀疏测试 JSON 和两个 TileLang 上游 HIP/CUDA 头文件。这些排除项不参与范围完成判断，具体模式见 `examples/sources.json`。历史版本、子模块、PDF、Notebook、二进制和不支持的文件扩展名仍在范围外。
+
+
+## 周更发现 SGLang 稳定适配分支（2026-10-26）
+
+每周完整刷新会从 `examples/sources.json` 中配置的 `release/v0.5.14` 种子发现最新稳定适配分支，按 `release/vX.Y.Z` 版本号排序，并固定本次抓取的完整 commit；分支 API 暂时不可用时回退到配置种子。本周实际索引 `release/v0.5.21`，commit `2b6d2c59fe1e171947764dd34172a01a7aeec6ec`。完整来源版本与验收计数见 [`docs/refresh/2026-10-26.json`](refresh/2026-10-26.json)。

@@ -29,7 +29,7 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'MXMACA' --s
 
 ## 默认收录范围
 
-`examples/sources.json` 开启源码索引，选择以下仓库的快照。SGLang 固定为 `release/v0.5.14`，其他仓库使用默认分支：
+`examples/sources.json` 开启源码索引，选择以下仓库的快照。SGLang 每次完整刷新会从配置的 MACA 发布分支提示中发现最新稳定适配发布分支，其他仓库使用默认分支：
 
 | 来源 | 内容 |
 | --- | --- |
@@ -47,7 +47,7 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'MXMACA' --s
 
 官方手册按 `official.series` 中的名称筛选，每次同步重新发现目录中的版本和预览地址。GitHub 先固定 commit，读取文件清单，再下载该 commit 的归档。采集器核对文件的 Git blob hash，并在回读元数据中标记 `content_kind=code` 或 `documentation`。归档只在内存中读取，不解压到磁盘；API token 不发送给归档主机。
 
-配置仍有上限。官方最多 1000 页，每个仓库最多 10,000 个文档或源码文件。正文最多 500,000 字符，归档压缩体最多 128 MiB。`github.exclude_globs` 是全局排除模式（大型 tokenizer 数据、一个生成的稀疏测试 JSON、两个大型 HIP/CUDA vendor 头文件）；`github.repository_exclude_globs` 可按 `owner/name` 追加仅对单个仓库生效的模式，用来去掉各仓库 vendored 的重复副本，同时保留 MetaX 自己的后端目录。二进制、子模块内容、PDF、Notebook 和未支持的扩展名不采集。任何文件或页数截断都会反映在同步报告中。`mcoplib` 等仓库资料按来源呈现，索引不会确认其中的优化参数是否正确。
+配置仍有上限。官方最多 1000 页，每个仓库最多 10,000 个文档或源码文件。单份正文最多 1,000,000 字符，归档压缩体最多 128 MiB。`github.exclude_globs` 是全局排除模式（大型 tokenizer 数据、一个生成的稀疏测试 JSON、两个大型 HIP/CUDA vendor 头文件）；`github.repository_exclude_globs` 可按 `owner/name` 追加仅对单个仓库生效的模式，用来去掉各仓库 vendored 的重复副本，同时保留 MetaX 自己的后端目录。二进制、子模块内容、PDF、Notebook 和未支持的扩展名不采集。任何文件或页数截断都会反映在同步报告中。`mcoplib` 等仓库资料按来源呈现，索引不会确认其中的优化参数是否正确。
 
 修改采集器代码后，运行 `uv sync --locked --group dev --no-editable --reinstall-package metax-docs-mcp`，重建本地包，避免复用旧构建缓存。
 
@@ -60,7 +60,7 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'mcMalloc' -
 uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search '共享内存' --source official
 ```
 
-`github.repository_refs` 可按完整仓库名指定分支、标签或 commit。每个仓库每次选择一个 ref，`version` 返回该 ref，`revision` 返回解析后的 commit。默认 SGLang 的 `main` 是上游代码快照，MACA 适配代码在发布分支，因此使用 `release/v0.5.14`。切换分支时应建立新数据库，避免保留原分支已删除的文件。
+`github.repository_refs` 可按完整仓库名指定分支、标签或 commit。每个仓库每次选择一个 ref，`version` 返回该 ref，`revision` 返回解析后的 commit。配置中的 SGLang `release/v0.5.14` 是稳定适配发布分支的发现种子。每次完整刷新按 `release/vX.Y.Z` 的版本号选择最新稳定分支，再固定并记录解析后的 commit；GitHub 分支发现暂时不可用时回退到配置种子。2026-10-26 实际选择 `release/v0.5.21`，commit 为 `2b6d2c59fe1e171947764dd34172a01a7aeec6ec`。切换分支时应建立新数据库，避免保留原分支已删除的文件。
 
 `github.transport` 支持 `archive` 和 `api`。后者沿用逐文件 GitHub API 下载，适合小范围同步；默认配置使用归档，减少 API 请求。跨组织来源只允许显式列出的 `tile-ai/tilelang-metax`，配置不能任意扩大组织范围。
 

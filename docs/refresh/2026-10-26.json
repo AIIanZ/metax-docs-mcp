@@ -1,0 +1,224 @@
+{
+  "date": "2026-10-26",
+  "result": "published",
+  "started_at": "20261026T041111.006608Z",
+  "finished_at": "2026-10-26T04:59:10.141046+00:00",
+  "source_config": "examples/sources.json",
+  "scope": {
+    "official_manual_series": 11,
+    "github_repositories": 13,
+    "github_transport": "archive",
+    "docker_filter": {
+      "chip_name": "MXC500",
+      "package_kind": "MXMACA",
+      "dimension": "docker",
+      "deliver_type": "分层包"
+    },
+    "max_document_chars": 1000000,
+    "sglang_release_configured": "release/v0.5.14",
+    "sglang_release_resolved": "release/v0.5.21"
+  },
+  "counts": {
+    "before": {
+      "docker": 14,
+      "github": 15062,
+      "official": 67
+    },
+    "after": {
+      "docker": 14,
+      "github": 17761,
+      "official": 67
+    }
+  },
+  "document_changes": {
+    "added": 5384,
+    "updated": 8203,
+    "removed": 2685,
+    "body_changed": 2997,
+    "metadata_only_updated": 5206
+  },
+  "repository_revision_changes": {
+    "MetaX-MACA/TileOPs-Metax": {
+      "before": {
+        "version": "dev",
+        "revision": "717f04c206384828ed23ab1e40c547a836a17db9"
+      },
+      "after": {
+        "version": "dev",
+        "revision": "20f4badf6919fd0cf838481023c76e9fc07dcbeb"
+      }
+    },
+    "MetaX-MACA/mcoplib": {
+      "before": {
+        "version": "main",
+        "revision": "f325795aac1ee71cd51111b065f6dd175246961d"
+      },
+      "after": {
+        "version": "main",
+        "revision": "1089e4bafb1096cc1faf41dc683b2d35ca577a15"
+      }
+    },
+    "MetaX-MACA/sglang": {
+      "before": {
+        "version": "release/v0.5.14",
+        "revision": "052dcfb5f7d968a121497b3fed82b1c563d856e8"
+      },
+      "after": {
+        "version": "release/v0.5.21",
+        "revision": "2b6d2c59fe1e171947764dd34172a01a7aeec6ec"
+      }
+    },
+    "MetaX-MACA/vLLM-metax": {
+      "before": {
+        "version": "master",
+        "revision": "9f03f6c8d19d0264d965fcb3d89dff81e13e512d"
+      },
+      "after": {
+        "version": "master",
+        "revision": "55586ec0050b18ef33ba2c8e8a9528783c5641c7"
+      }
+    }
+  },
+  "current_github_revisions": [
+    {
+      "repository": "MetaX-MACA/McFlashInfer",
+      "version": "master",
+      "commit": "4d23f89fab846c48f40dc096a90fcb2b3ea3e006",
+      "documents": 198
+    },
+    {
+      "repository": "MetaX-MACA/TileKernels-Metax",
+      "version": "dev",
+      "commit": "0266ab740980de7dc03a828b8259cd73d100c2eb",
+      "documents": 124
+    },
+    {
+      "repository": "MetaX-MACA/TileOPs-Metax",
+      "version": "dev",
+      "commit": "20f4badf6919fd0cf838481023c76e9fc07dcbeb",
+      "documents": 638
+    },
+    {
+      "repository": "MetaX-MACA/flashattn",
+      "version": "2.25.2",
+      "commit": "8f279843ce18cb5c1c9e695267e28060d0b6273c",
+      "documents": 1068
+    },
+    {
+      "repository": "MetaX-MACA/gpuBenchmark",
+      "version": "main",
+      "commit": "c036397faf50b02173820f4ceba61771c473c181",
+      "documents": 56
+    },
+    {
+      "repository": "MetaX-MACA/maca-samples",
+      "version": "main",
+      "commit": "e6de14cc4d9248768d066a1475450ed7705fd766",
+      "documents": 70
+    },
+    {
+      "repository": "MetaX-MACA/mcTlass",
+      "version": "2.20.2",
+      "commit": "3d125cdd2ae265d6f76c5f5ac3d2cadcd2bfb47d",
+      "documents": 398
+    },
+    {
+      "repository": "MetaX-MACA/mcTriton",
+      "version": "3.0",
+      "commit": "7dd407c26568fceaca44cb894138e5202d369805",
+      "documents": 371
+    },
+    {
+      "repository": "MetaX-MACA/mcoplib",
+      "version": "main",
+      "commit": "1089e4bafb1096cc1faf41dc683b2d35ca577a15",
+      "documents": 1729
+    },
+    {
+      "repository": "MetaX-MACA/op_optimization",
+      "version": "master",
+      "commit": "67875de0d2f159f7380ad6471a34bf8c6551a8f1",
+      "documents": 5
+    },
+    {
+      "repository": "MetaX-MACA/sglang",
+      "version": "release/v0.5.21",
+      "commit": "2b6d2c59fe1e171947764dd34172a01a7aeec6ec",
+      "documents": 9738
+    },
+    {
+      "repository": "MetaX-MACA/vLLM-metax",
+      "version": "master",
+      "commit": "55586ec0050b18ef33ba2c8e8a9528783c5641c7",
+      "documents": 1401
+    },
+    {
+      "repository": "tile-ai/tilelang-metax",
+      "version": "dev",
+      "commit": "90d49f353ec88bd0d346474f143003d865dd3b79",
+      "documents": 1965
+    }
+  ],
+  "docker_versions": [
+    {
+      "version": "3.5.3.x",
+      "documents": 5
+    },
+    {
+      "version": "3.7.0",
+      "documents": 1
+    },
+    {
+      "version": "3.7.2",
+      "documents": 1
+    },
+    {
+      "version": "3.8.0",
+      "documents": 1
+    },
+    {
+      "version": "3.9.0",
+      "documents": 1
+    },
+    {
+      "version": "3.9.1",
+      "documents": 5
+    }
+  ],
+  "acceptance": {
+    "sync": {
+      "failed": 0,
+      "partial": false,
+      "truncated": false,
+      "indexed": 17842
+    },
+    "sqlite_integrity": "ok",
+    "fts_integrity": "ok",
+    "stdio_queries": 17,
+    "operator_guide_topics": 17,
+    "coverage_groups": 33,
+    "live_mcp_sources_confirmed": true,
+    "live_mcp_search": {
+      "query": "MXC500",
+      "source": "docker",
+      "hits": 5
+    }
+  },
+  "recovery": {
+    "recovered": true,
+    "details": [
+      "GitHub batch 1 initially returned HTTP 403 for three repositories; the batch checkpoint was restored and the batch completed after the published rate-limit reset.",
+      "The official catalog page label no longer matches the API chip filter. Verified MXC500 returns 14 records and the prior label returns zero; corrected the configured filter and indexed the 14 C500 records.",
+      "The stdio verifier child needed the project source directory in its environment; fixed the verifier environment and reran all acceptance probes."
+    ],
+    "failed_attempts": ".data/refresh/20261026T041111.006608Z/attempt-incomplete-result.json"
+  },
+  "reports": {
+    "run_directory": ".data/refresh/20261026T041111.006608Z",
+    "result": ".data/refresh/20261026T041111.006608Z/result.json",
+    "sync": ".data/refresh/20261026T041111.006608Z/sync.json",
+    "verify": ".data/refresh/20261026T041111.006608Z/verify.json",
+    "failure_record": ".data/refresh/20261026T041111.006608Z/attempt-incomplete-result.json",
+    "previous_database": ".data/index.previous.sqlite3"
+  }
+}
