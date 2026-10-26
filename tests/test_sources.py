@@ -375,3 +375,39 @@ def test_invalid_repository_exclude_globs_is_reported(monkeypatch: pytest.Monkey
     )
     assert report["failed"] == 1
     assert any("repository_exclude_globs" in str(error.get("error")) for error in report["errors"])
+
+
+def test_large_github_manual_is_complete_with_expanded_document_limit(monkeypatch: pytest.MonkeyPatch):
+    root = "https://api.github.com/repos/MetaX-MACA/maca-samples"
+    revision = "a" * 40
+    blob_sha = "b" * 40
+    manual = "x" * 762_937
+    routes = {
+        root: FakeResponse(200, json.dumps({"default_branch": "main", "private": False}).encode()),
+        root + "/commits/main": FakeResponse(200, json.dumps({"sha": revision}).encode()),
+        root + f"/git/trees/{revision}?recursive=1": FakeResponse(
+            200,
+            json.dumps({"truncated": False, "tree": [
+                {"path": "docs/manual.md", "type": "blob", "sha": blob_sha, "size": len(manual)},
+            ]}).encode(),
+        ),
+        root + f"/git/blobs/{blob_sha}": FakeResponse(
+            200,
+            json.dumps({"encoding": "base64", "content": base64.b64encode(manual.encode()).decode()}).encode(),
+        ),
+    }
+    _patch_client(monkeypatch, FakeClient(routes))
+    store = MemoryStore()
+    report = sources.sync_sources(
+        store,
+        {
+            "github": {"organization": "MetaX-MACA", "repositories": ["maca-samples"], "include_code": False},
+            "http": {"max_document_chars": 1_000_000, "retries": 0, "rate_limit": 0},
+        },
+        source="github",
+    )
+
+    assert report["failed"] == 0
+    assert report["partial"] is False
+    assert report["truncated"] is False
+    assert next(iter(store.documents.values())).text == manual
