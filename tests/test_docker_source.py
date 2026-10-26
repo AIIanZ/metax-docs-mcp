@@ -4,10 +4,61 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlsplit
 
 from metax_docs_mcp import docker_source
+
+
+Warning: truncated output (original token count: 448)
+Total output lines: 52
+
+def test_configured_docker_seed_uses_current_c500_catalog_filter():
+    config_path = Path(__file__).parents[1] / "examples" / "sources.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    endpoint, page_url = docker_source._seed_specs(config["docker"])[0]
+
+    assert endpoint == docker_source.DOCKER_API_URL
+    assert parse_qs(urlsplit(page_url).query)["chip_name"] == ["MXC500"]
+
+
+@dataclass
+class FakeResponse:
+    payload: Any
+    status_code: int = 200
+    content_type: str = "application/json"
+    truncated: bool = False
+
+    @property
+    def headers(self) -> dict[str, str]:
+        return {"content-type": self.content_type}
+
+    @property
+    def content(self) -> bytes:
+        if isinstance(self.payload, (bytes, bytearray)):
+            return bytes(self.payloa…48 tokens truncated…lls: list[str] = []
+
+    def get(self, url: str) -> FakeResponse:
+        self.calls.append(url)
+        page = int(parse_qs(urlsplit(url).query).get("page", ["1"])[0])
+        route = self.routes.get(page)
+        if isinstance(route, BaseException):
+            raise route
+        if route is None:
+            raise AssertionError(f"unexpected page request: {url}")
+        return route if isinstance(route, FakeResponse) else FakeResponse(route)
+
+
+class MemoryStore:
+    def __init__(self):
+        self.documents: dict[str, Any] = {}
+
+    def upsert(self, document):
+        old = self.documents.get(document.id)
+        changed = old is None or old.metadata.get("content_sha256") != document.metadata.get("content_sha256")
+        self.documents[document.id] = document
+        return changed
 
 
 @dataclass
