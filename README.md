@@ -33,6 +33,8 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'MXMACA' --s
 
 | 来源 | 内容 |
 | --- | --- |
+| `developer.metax-tech.com/llm-inference/sgldocs` | 当前版本的 SGLang 手册及其章节页面 |
+| `developer.metax-tech.com/llm-inference/mim` | 公开 MIM 模型表：框架、GPU、精度、MACA/MIM 版本、系统和镜像引用 |
 | `MetaX-MACA/vLLM-metax` | 沐曦 vLLM 插件、模型与 Attention 适配、构建和发布文档 |
 | `MetaX-MACA/sglang` | 沐曦 SGLang 分支、调度、模型、算子及部署代码 |
 | `MetaX-MACA/maca-samples`、`gpuBenchmark` | MACA Runtime 示例、C++/GPU kernel 和性能测试方法 |
@@ -45,9 +47,9 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'MXMACA' --s
 | `tile-ai/tilelang-metax` | MACA 后端、安装文档和编程示例 |
 | 沐曦官方 HTML 手册 | C++、运行时编程与 API、mxcc、内建函数、mcProfiler、mcTracer、mcTriton、MCCL、快速上手和 AI 推理 |
 
-官方手册按 `official.series` 中的名称筛选，每次同步重新发现目录中的版本和预览地址。GitHub 先固定 commit，读取文件清单，再下载该 commit 的归档。采集器核对文件的 Git blob hash，并在回读元数据中标记 `content_kind=code` 或 `documentation`。归档只在内存中读取，不解压到磁盘；API token 不发送给归档主机。
+官方手册按 `official.series` 中的名称筛选，每次同步重新发现目录中的版本和预览地址。SGLang 手册入口由客户端渲染，采集器沿当前 `latest/` 路径发现 HTML 章节；MIM 模型表通过公开分页 API 读取，文档和镜像链接作为元数据保留，不访问这些链接或下载镜像。GitHub 先固定 commit，读取文件清单，再下载该 commit 的归档。采集器核对文件的 Git blob hash，并在回读元数据中标记 `content_kind=code` 或 `documentation`。归档只在内存中读取，不解压到磁盘；API token 不发送给归档主机。
 
-配置仍有上限。官方最多 1000 页，每个仓库最多 10,000 个文档或源码文件。单份正文最多 1,000,000 字符，归档压缩体最多 128 MiB。`github.exclude_globs` 是全局排除模式（大型 tokenizer 数据、一个生成的稀疏测试 JSON、两个大型 HIP/CUDA vendor 头文件）；`github.repository_exclude_globs` 可按 `owner/name` 追加仅对单个仓库生效的模式，用来去掉各仓库 vendored 的重复副本，同时保留 MetaX 自己的后端目录。二进制、子模块内容、PDF、Notebook 和未支持的扩展名不采集。任何文件或页数截断都会反映在同步报告中。`mcoplib` 等仓库资料按来源呈现，索引不会确认其中的优化参数是否正确。
+配置仍有上限。官方最多 1000 页，每个仓库最多 10,000 个文档或源码文件。单份正文最多 1,000,000 字符，归档压缩体最多 128 MiB。`github.exclude_globs` 是全局排除模式（大型 tokenizer 数据、一个生成的稀疏测试 JSON、两个大型 HIP/CUDA vendor 头文件）；`github.repository_exclude_globs` 可按 `owner/name` 追加仅对单个仓库生效的模式，用来去掉各仓库 vendored 的重复副本和 vLLM 测试模型中的词表数据，同时保留 MetaX 自己的后端目录。二进制、子模块内容、PDF、Notebook 和未支持的扩展名不采集。任何文件或页数截断都会反映在同步报告中。`mcoplib` 等仓库资料按来源呈现，索引不会确认其中的优化参数是否正确。
 
 修改采集器代码后，运行 `uv sync --locked --group dev --no-editable --reinstall-package metax-docs-mcp`，重建本地包，避免复用旧构建缓存。
 

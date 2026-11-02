@@ -1,5 +1,16 @@
 # 官方沐曦文档源探测记录
 
+## LLM 推理文档页面
+
+`examples/sources.json` 还将以下公开页面作为官方 HTML 源入口：
+
+- `https://developer.metax-tech.com/llm-inference/sgldocs/latest/getting_started/overview.html`
+- `https://developer.metax-tech.com/llm-inference/mim/models`
+
+SGLang 手册当前版本位于 `/llm-inference/sgldocs/latest/`；旧路径会返回 404。抓取器在同一主机内发现链接，并通过 `official.crawl_path_prefixes` 将手册限制在当前版本路径；普通 `/doc` 目录及其已发现手册仍按原来的单手册范围抓取。
+
+MIM 模型页由客户端加载模型表。采集器通过只读接口 `GET /api/client/inference-development/supported-models/` 读取分页 JSON，校验 HTTP 状态、Content-Type、`code`、`data` 和 `page_info.total`，并将每个公开模型记录索引为独立的 `source=official` 文档。模型记录中的 `document_url` 和镜像引用作为元数据保留；采集器不会抓取这些引用或下载镜像。这样，MIM 检索反映 API 当前公开的模型表，不把失效的链接误报为已抓取正文。
+
 本文记录 developer.metax-tech.com 公开文档源的实际探测结果，供官方源 ingestion 实现和验收使用。结果是 **2026-09-18** 通过只读 HTTPS 请求取得的快照。站点没有承诺这些 /api/client/... 路径是稳定的公共 API；实现必须把它们视为可变的公开站点接口，并在同步报告中暴露失败和部分发现。
 
 ## 入口与接口
@@ -372,17 +383,12 @@ curl -fsSL 'https://developer.metax-tech.com/softnova/api/v3/dlhub/choice_info/?
 
 ## MACA 编程和框架源码扩展（2026-09-30）
 
-本次通过公开 GitHub API 核对 [MetaX-MACA 仓库](https://github.com/MetaX-MACA) 和 [TileLang-Metax](https://github.com/tile-ai/tilelang-metax)。默认来源配置选择 vLLM-metax、sglang、maca-samples、gpuBenchmark、mcoplib、TileOPs-Metax、TileKernels-Metax 和 tilelang-metax，收录支持扩展名的文档、源码与构建文件。
+2026-09-30 的探测快照核对了 [MetaX-MACA 仓库](https://github.com/MetaX-MACA) 和 [TileLang-Metax](https://github.com/tile-ai/tilelang-metax)。当前 `examples/sources.json` 选择 13 个仓库：vLLM-metax、sglang、maca-samples、gpuBenchmark、mcoplib、mcTlass、mcTriton、flashattn、McFlashInfer、op_optimization、TileOPs-Metax、TileKernels-Metax 和 tile-ai/tilelang-metax；收录支持扩展名的文档、源码与构建文件。
 
-SGLang 的默认 `main` 分支在本次快照中没有 MACA 平台检测代码。读取 [release/v0.5.14 的 common.py](https://github.com/MetaX-MACA/sglang/blob/a60ee6e5be6f19d94b0ac07bd1b281eb385f37bd/python/sglang/srt/utils/common.py) 确认存在 `is_maca()` 和 MACA 设备相关逻辑，因此默认配置使用该发布分支。仓库地址属于沐曦组织，不足以证明默认分支含适配实现，验收必须查询实际源码。
+2026-09-30 的 SGLang `main` 快照没有 MACA 平台检测代码；当时核对的 [release/v0.5.14 `common.py`](https://github.com/MetaX-MACA/sglang/blob/a60ee6e5be6f19d94b0ac07bd1b281eb385f37bd/python/sglang/srt/utils/common.py) 含 `is_maca()` 和 MACA 设备逻辑。当前刷新从配置的 `release/v0.5.14` 种子发现最新稳定适配分支，按版本号排序并固定完整 commit。2026-11-02 选中 `release/v0.5.21`，commit `2b6d2c59fe1e171947764dd34172a01a7aeec6ec`。仓库地址属于沐曦组织，不足以证明默认分支含适配实现，验收必须查询实际源码。
 
 官方目录本次提供 MACA 3.9.0 的编程手册。配置按精确 `series_name` 选择 C++ 编程、运行时 API 编程与参考、mxcc、编译器内建函数、mcProfiler、mcTracer、mcTriton、MCCL 和快速上手指南，另加 AI 推理手册。预览 ID 每次由目录解析，避免把旧 ID 当作永久入口。
 
 代码库使用固定 commit 的 Git tree 和 `https://codeload.github.com/<owner>/<repo>/tar.gz/<commit>`。每个文件的原始字节与 tree 中的 Git blob SHA 核对后才入库。服务仍只读本地 SQLite；同步归档不会执行其中的构建脚本或命令。固定 commit、分支和内容类型随检索结果及回读元数据返回。
 
-配置排除大型 tokenizer、一个生成的 SGLang 稀疏测试 JSON 和两个 TileLang 上游 HIP/CUDA 头文件。这些排除项不参与范围完成判断，具体模式见 `examples/sources.json`。历史版本、子模块、PDF、Notebook、二进制和不支持的文件扩展名仍在范围外。
-
-
-## 周更发现 SGLang 稳定适配分支（2026-10-26）
-
-每周完整刷新会从 `examples/sources.json` 中配置的 `release/v0.5.14` 种子发现最新稳定适配分支，按 `release/vX.Y.Z` 版本号排序，并固定本次抓取的完整 commit；分支 API 暂时不可用时回退到配置种子。本周实际索引 `release/v0.5.21`，commit `2b6d2c59fe1e171947764dd34172a01a7aeec6ec`。完整来源版本与验收计数见 [`docs/refresh/2026-10-26.json`](refresh/2026-10-26.json)。
+配置排除大型 tokenizer、一个生成的 SGLang 稀疏测试 JSON、两个 TileLang 上游 HIP/CUDA 头文件，以及 vLLM 测试模型中的 `merges.txt` 和 `vocab.json`。这些排除项不参与范围完成判断，具体模式见 `examples/sources.json`。历史版本、子模块、PDF、Notebook、二进制和不支持的文件扩展名仍在范围外。
