@@ -1,10 +1,16 @@
 {
   "official": {
     "seeds": [
-      "https://developer.metax-tech.com/doc"
+      "https://developer.metax-tech.com/doc",
+      "https://developer.metax-tech.com/llm-inference/sgldocs/latest/getting_started/overview.html",
+      "https://developer.metax-tech.com/llm-inference/mim/models"
     ],
     "max_pages": 1000,
     "discover": true,
+    "crawl_path_prefixes": [
+      "/llm-inference/sgldocs/latest/",
+      "/llm-inference/mim/"
+    ],
     "series": [
       "快速上手指南",
       "MXMACA C++编程指南",
@@ -50,6 +56,10 @@
       "MetaX-MACA/sglang": "release/v0.5.14"
     },
     "repository_exclude_globs": {
+      "MetaX-MACA/vLLM-metax": [
+        "tools/models/Qwen3.8-Flash-Next-dummy-3layers/merges.txt",
+        "tools/models/Qwen3.8-Flash-Next-dummy-3layers/vocab.json"
+      ],
       "MetaX-MACA/McFlashInfer": [
         "3rdparty/**"
       ],

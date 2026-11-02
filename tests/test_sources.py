@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import json
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -136,6 +137,133 @@ def test_official_directory_catalog_and_child_version_metadata(monkeypatch: pyte
     assert "https://developer.metax-tech.com/doc" not in client.calls
 
 
+def test_official_mim_catalog_indexes_models_without_fetching_catalog_links(monkeypatch: pytest.MonkeyPatch):
+    mim_page = "https://developer.metax-tech.com/llm-inference/mim/models"
+    landing_page = "https://developer.metax-tech.com/llm-inference/landing"
+    api = sources.MIM_CATALOG_API
+    doc_one = "https://developer.metax-tech.com/llm-inference/sgldocs/tutorials/models/model-one.html"
+    doc_two = "https://developer.metax-tech.com/llm-inference/sgldocs/tutorials/models/model-two.html"
+    first = {
+        "id": 2,
+        "engine_code": "sglang",
+        "engine_name": "SGLang",
+        "engine_version": "0.5.14",
+        "model_name": "DeepSeek-V4-Test",
+        "model_series": "DeepSeek",
+        "model_type": "大语言模型",
+        "chip_series": [{"id": 1, "name": "MXC500", "code": "MXC500"}],
+        "gpus": [{"id": 3, "name": "曦云C550", "code": "XY-C550"}],
+        "precision": "W4A8",
+        "maca_version": "3.8.4",
+        "mim_version": "4.0.1",
+        "operating_system": "Linux",
+        "distribution": "Ubuntu22.04",
+        "architecture": "amd64",
+        "inference_image_url": "mxcr.metax-tech.com/mim-pub/sglang/test:latest",
+        "document_url": doc_one,
+        "published": True,
+    }
+    second = {
+        "id": 1,
+        "engine_code": "sglang",
+        "engine_name": "SGLang",
+        "model_name": "Qwen-Test",
+        "inference_image_url": "mxcr.metax-tech.com/mim-pub/sglang/qwen:test",
+        "document_url": doc_two,
+        "published": False,
+    }
+    client = FakeClient(
+        {
+            landing_page: FakeResponse(
+                200,
+                _html("Inference", "Public inference portal " * 12, [mim_page]),
+                {"content-type": "text/html"},
+            ),
+            f"{api}?page=1&page_size=100": FakeResponse(
+                200,
+                json.dumps({"code": 0, "data": [first], "page_info": {"page": 1, "page_size": 1, "total": 2}}).encode(),
+                {"content-type": "application/json"},
+            ),
+            f"{api}?page=2&page_size=100": FakeResponse(
+                200,
+                json.dumps({"code": 0, "data": [second], "page_info": {"page": 2, "page_size": 1, "total": 2}}).encode(),
+                {"content-type": "application/json"},
+            ),
+            doc_one: FakeResponse(200, _html("Model one", "Model documentation " * 12), {"content-type": "text/html"}),
+            doc_two: FakeResponse(200, _html("Model two", "Model documentation " * 12), {"content-type": "text/html"}),
+        }
+    )
+    _patch_client(monkeypatch, client)
+    store = MemoryStore()
+
+    report = sources.sync_sources(
+        store,
+        {
+            "official": {
+                "seeds": [landing_page],
+                "crawl_path_prefixes": ["/llm-inference/mim/", "/llm-inference/sgldocs/latest/"],
+                "max_pages": 10,
+                "discover": True,
+            },
+            "http": {"retries": 0, "rate_limit": 0},
+        },
+        source="official",
+    )
+
+    models = [document for document in store.documents.values() if document.metadata.get("kind") == "mim_model"]
+    assert report["failed"] == 0
+    assert report["partial"] is False
+    assert report["truncated"] is False
+    assert report["discovered"] == 3
+    assert report["indexed"] == 3
+    assert len(models) == 2
+    assert {document.metadata["source_record_id"] for document in models} == {"1", "2"}
+    assert {document.version for document in models} == {"", "4.0.1"}
+    assert any("DeepSeek-V4-Test" in document.text and "W4A8" in document.text for document in models)
+    assert any("Qwen-Test" in document.text and "预览" in document.text for document in models)
+    assert {document.url for document in models} == {mim_page}
+    assert {document.metadata["document_url"] for document in models} == {doc_one, doc_two}
+    assert not any(url in client.calls for url in (doc_one, doc_two))
+    assert not any("mxcr.metax-tech.com" in url for url in client.calls)
+    assert mim_page not in client.calls
+
+
+def test_official_mim_catalog_rejects_http_200_application_error(monkeypatch: pytest.MonkeyPatch):
+    api = sources.MIM_CATALOG_API
+    client = FakeClient(
+        {
+            f"{api}?page=1&page_size=100": FakeResponse(
+                200,
+                json.dumps({"code": 1, "message": "catalog unavailable", "data": [], "page_info": {}}).encode(),
+                {"content-type": "application/json"},
+            )
+        }
+    )
+    _patch_client(monkeypatch, client)
+    store = MemoryStore()
+
+    report = sources.sync_sources(
+        store,
+        {
+            "official": {"seeds": ["https://developer.metax-tech.com/llm-inference/mim/models"]},
+            "http": {"retries": 0, "rate_limit": 0},
+        },
+        source="official",
+    )
+
+    assert report["failed"] == 1
+    assert report["partial"] is True
+    assert not store.documents
+
+
+def test_configured_sgldocs_seed_targets_the_latest_publication():
+    config_path = Path(__file__).parents[1] / "examples" / "sources.json"
+    config = json.loads(config_path.read_text(encoding="utf-8"))
+    seeds = config["official"]["seeds"]
+    assert "https://developer.metax-tech.com/llm-inference/sgldocs/latest/getting_started/overview.html" in seeds
+    assert "/llm-inference/sgldocs/latest/" in config["official"]["crawl_path_prefixes"]
+
+
 def test_github_uses_fixed_commit_and_hash_idempotency(monkeypatch: pytest.MonkeyPatch):
     root = "https://api.github.com/repos/MetaX-MACA/maca-samples"
     revision = "a" * 40
@@ -191,6 +319,42 @@ def test_github_uses_fixed_commit_and_hash_idempotency(monkeypatch: pytest.Monke
     assert second["unchanged"] == 1
     assert next(iter(store.documents.values())).id == stable_id
     assert not any("sample.py" in path for path in second_client.calls)
+
+
+def test_large_github_manual_is_complete_with_expanded_document_limit(monkeypatch: pytest.MonkeyPatch):
+    root = "https://api.github.com/repos/MetaX-MACA/maca-samples"
+    revision = "a" * 40
+    blob_sha = "b" * 40
+    manual = "x" * 762_937
+    routes = {
+        root: FakeResponse(200, json.dumps({"default_branch": "main", "private": False}).encode()),
+        root + "/commits/main": FakeResponse(200, json.dumps({"sha": revision}).encode()),
+        root + f"/git/trees/{revision}?recursive=1": FakeResponse(
+            200,
+            json.dumps({"truncated": False, "tree": [
+                {"path": "docs/manual.md", "type": "blob", "sha": blob_sha, "size": len(manual)},
+            ]}).encode(),
+        ),
+        root + f"/git/blobs/{blob_sha}": FakeResponse(
+            200,
+            json.dumps({"encoding": "base64", "content": base64.b64encode(manual.encode()).decode()}).encode(),
+        ),
+    }
+    _patch_client(monkeypatch, FakeClient(routes))
+    store = MemoryStore()
+    report = sources.sync_sources(
+        store,
+        {
+            "github": {"organization": "MetaX-MACA", "repositories": ["maca-samples"], "include_code": False},
+            "http": {"max_document_chars": 1_000_000, "retries": 0, "rate_limit": 0},
+        },
+        source="github",
+    )
+
+    assert report["failed"] == 0
+    assert report["partial"] is False
+    assert report["truncated"] is False
+    assert next(iter(store.documents.values())).text == manual
 
 
 def test_github_tree_truncation_and_one_blob_failure_are_visible(monkeypatch: pytest.MonkeyPatch):
@@ -271,6 +435,18 @@ def test_manual_crawl_does_not_follow_other_versions():
     base = 'https://developer.metax-tech.com/api/client/document/preview/1484/index.html'
     page = sources._ParsedPage('x', 'x', ('split_files/test.html', '../1485/index.html', '/doc'))
     assert list(sources._page_links(page, base, {sources.OFFICIAL_HOST})) == [base.replace('index.html', 'split_files/test.html')]
+
+
+def test_latest_sgldocs_crawl_skips_unpublished_markdown_source_links():
+    base = "https://developer.metax-tech.com/llm-inference/sgldocs/latest/index.html"
+    page = sources._ParsedPage(
+        "SGLang",
+        "SGLang",
+        ("tutorials/getting_started/setup_environment.md", "getting_started/quick_start.html"),
+    )
+    assert list(sources._page_links(page, base, {sources.OFFICIAL_HOST}, ["/llm-inference/sgldocs/latest/"])) == [
+        "https://developer.metax-tech.com/llm-inference/sgldocs/latest/getting_started/quick_start.html"
+    ]
 
 
 def test_catalog_paginates_using_total_count():
@@ -375,39 +551,3 @@ def test_invalid_repository_exclude_globs_is_reported(monkeypatch: pytest.Monkey
     )
     assert report["failed"] == 1
     assert any("repository_exclude_globs" in str(error.get("error")) for error in report["errors"])
-
-
-def test_large_github_manual_is_complete_with_expanded_document_limit(monkeypatch: pytest.MonkeyPatch):
-    root = "https://api.github.com/repos/MetaX-MACA/maca-samples"
-    revision = "a" * 40
-    blob_sha = "b" * 40
-    manual = "x" * 762_937
-    routes = {
-        root: FakeResponse(200, json.dumps({"default_branch": "main", "private": False}).encode()),
-        root + "/commits/main": FakeResponse(200, json.dumps({"sha": revision}).encode()),
-        root + f"/git/trees/{revision}?recursive=1": FakeResponse(
-            200,
-            json.dumps({"truncated": False, "tree": [
-                {"path": "docs/manual.md", "type": "blob", "sha": blob_sha, "size": len(manual)},
-            ]}).encode(),
-        ),
-        root + f"/git/blobs/{blob_sha}": FakeResponse(
-            200,
-            json.dumps({"encoding": "base64", "content": base64.b64encode(manual.encode()).decode()}).encode(),
-        ),
-    }
-    _patch_client(monkeypatch, FakeClient(routes))
-    store = MemoryStore()
-    report = sources.sync_sources(
-        store,
-        {
-            "github": {"organization": "MetaX-MACA", "repositories": ["maca-samples"], "include_code": False},
-            "http": {"max_document_chars": 1_000_000, "retries": 0, "rate_limit": 0},
-        },
-        source="github",
-    )
-
-    assert report["failed"] == 0
-    assert report["partial"] is False
-    assert report["truncated"] is False
-    assert next(iter(store.documents.values())).text == manual

@@ -77,6 +77,8 @@ GITHUB_WEB_ROOT = "https://github.com"
 EXTERNAL_GITHUB_REPOSITORIES = {"tile-ai/tilelang-metax"}
 HARD_MAX_ARCHIVE_BYTES = 256 * 1024 * 1024
 OFFICIAL_HOST = "developer.metax-tech.com"
+MIM_CATALOG_API = f"https://{OFFICIAL_HOST}/api/client/inference-development/supported-models/"
+MIM_CATALOG_PAGE_SIZE = 100
 _REDIRECT_STATUSES = {301, 302, 303, 307, 308}
 _RETRY_STATUSES = {408, 425, 429, 500, 502, 503, 504, 520, 521, 522, 523, 524}
 _NON_HTML_SUFFIXES = {
@@ -650,7 +652,12 @@ def _normalise_text(value: str, limit: int) -> str:
     return value[:limit]
 
 
-def _page_links(page: _ParsedPage, base: str, allowed_hosts: set[str]) -> Iterator[str]:
+def _page_links(
+    page: _ParsedPage,
+    base: str,
+    allowed_hosts: set[str],
+    path_prefixes: Sequence[str] = (),
+) -> Iterator[str]:
     seen: set[str] = set()
     base_path = urlsplit(base).path
     manual_root = base_path.split("/split_files/", 1)[0] + "/" if "/split_files/" in base_path else base_path.rsplit("/", 1)[0] + "/"
@@ -664,9 +671,14 @@ def _page_links(page: _ParsedPage, base: str, allowed_hosts: set[str]) -> Iterat
         if candidate in seen or not _allowed_url(candidate, allowed_hosts):
             continue
         candidate_path = urlsplit(candidate).path
-        if not candidate_path.startswith(manual_root):
+        in_configured_scope = any(candidate_path.startswith(prefix) for prefix in path_prefixes)
+        if not in_configured_scope and not candidate_path.startswith(manual_root):
             continue
         path = candidate_path.lower()
+        # Sphinx exposes raw source links beside published HTML pages. These
+        # source exports are not part of the public latest-document tree.
+        if path.startswith("/llm-inference/sgldocs/latest/") and path.endswith(".md"):
+            continue
         if path.endswith(tuple(_NON_HTML_SUFFIXES)):
             continue
         if path.rsplit("/", 1)[-1] in _OFFICIAL_SKIP_BASENAMES:
@@ -896,6 +908,206 @@ def _official_catalog_entries(
     return entries, reasons
 
 
+def _official_mim_catalog_entries(
+    fetcher: _HttpFetcher,
+    *,
+    max_pages: int,
+) -> tuple[list[Mapping[str, Any]], list[str]]:
+    """Read the public MIM model catalog used by the client-rendered page."""
+
+    max_pages = _bounded_int(max_pages, HARD_MAX_PAGES, 0, HARD_MAX_PAGES)
+    if max_pages == 0:
+        return [], ["MIM catalog page limit is zero"]
+    entries: list[Mapping[str, Any]] = []
+    reasons: list[str] = []
+    expected_total: int | None = None
+    for page_number in range(1, max_pages + 1):
+        endpoint = f"{MIM_CATALOG_API}?page={page_number}&page_size={MIM_CATALOG_PAGE_SIZE}"
+        try:
+            response = fetcher.get(endpoint)
+            content_type = response.headers.get("content-type", "").lower()
+            if response.truncated:
+                raise _IngestionError("MIM catalog response exceeded the response bound")
+            if "json" not in content_type:
+                raise _IngestionError("MIM catalog returned a non-JSON response")
+            try:
+                payload = json.loads(response.content.decode("utf-8", "replace"))
+            except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+                raise _IngestionError("MIM catalog returned invalid JSON") from exc
+            if not isinstance(payload, Mapping) or payload.get("code") != 0:
+                raise _IngestionError("MIM catalog returned an application error")
+            page_rows = payload.get("data")
+            page_info = payload.get("page_info")
+            if not isinstance(page_rows, list) or not isinstance(page_info, Mapping):
+                raise _IngestionError("MIM catalog response is missing data or page_info")
+            current_page = page_info.get("page")
+            response_page_size = page_info.get("page_size")
+            total = page_info.get("total")
+            if any(isinstance(value, bool) or not isinstance(value, int) for value in (current_page, response_page_size, total)):
+                raise _IngestionError("MIM catalog page_info contains invalid bounds")
+            if current_page != page_number or response_page_size <= 0 or total < 0:
+                raise _IngestionError("MIM catalog page_info does not match the requested page")
+            if expected_total is None:
+                expected_total = total
+            elif total != expected_total:
+                raise _IngestionError("MIM catalog total changed during pagination")
+            if len(page_rows) > response_page_size:
+                raise _IngestionError("MIM catalog page exceeds its reported page_size")
+            if not all(isinstance(item, Mapping) for item in page_rows):
+                raise _IngestionError("MIM catalog contains a non-object model record")
+            entries.extend(page_rows)
+            if len(entries) >= expected_total:
+                break
+            if not page_rows:
+                raise _IngestionError("MIM catalog returned an empty page before total was reached")
+        except Exception as exc:
+            reasons.append(f"catalog page {page_number}: {_safe_error(exc)}")
+            break
+    if expected_total is not None and len(entries) < expected_total and not reasons:
+        reasons.append(f"MIM catalog page limit {max_pages} left {expected_total - len(entries)} models undiscovered")
+    return entries, reasons
+
+
+def _official_mim_model_document(seed: str, record: Mapping[str, Any], *, max_document_chars: int) -> Any:
+    """Turn one public MIM catalog row into searchable official metadata."""
+
+    record_id = record.get("id")
+    model_id = str(record_id).strip() if isinstance(record_id, (str, int)) and not isinstance(record_id, bool) else ""
+    model_name = str(record.get("model_name") or "").strip()
+    if not model_id or not model_name:
+        raise _IngestionError("MIM model record is missing id or model_name")
+
+    def scalar(name: str) -> str:
+        value = record.get(name)
+        if value is None or isinstance(value, (dict, list)):
+            return ""
+        return str(value).strip()[:1_000]
+
+    def names(name: str) -> list[str]:
+        value = record.get(name)
+        if not isinstance(value, list):
+            return []
+        result: list[str] = []
+        for item in value[:50]:
+            if isinstance(item, Mapping):
+                label = str(item.get("name") or item.get("code") or "").strip()
+            else:
+                label = str(item).strip()
+            if label:
+                result.append(label[:200])
+        return result
+
+    chip_series = names("chip_series")
+    gpus = names("gpus")
+    fields = [
+        ("模型名称", model_name),
+        ("推理框架", " ".join(x for x in (scalar("engine_name"), scalar("engine_code"), scalar("engine_version")) if x)),
+        ("模型系列", scalar("model_series")),
+        ("模型类型", scalar("model_type")),
+        ("GPU 芯片系列", ", ".join(chip_series)),
+        ("GPU 型号", ", ".join(gpus)),
+        ("精度", scalar("precision")),
+        ("张量并行度", scalar("tp")),
+        ("MACA 版本", scalar("maca_version")),
+        ("MIM 版本", scalar("mim_version")),
+        ("操作系统与发行版", " ".join(x for x in (scalar("operating_system"), scalar("distribution"), scalar("architecture")) if x)),
+        ("推理镜像引用", scalar("inference_image_url")),
+        ("模型说明", scalar("description")),
+    ]
+    published = record.get("published")
+    if isinstance(published, bool):
+        fields.append(("发布状态", "已发布" if published else "预览"))
+    safe_document_url = ""
+    raw_document_url = scalar("document_url") or scalar("document_link")
+    if raw_document_url:
+        try:
+            candidate = _canonical_url(raw_document_url, seed)
+            if _allowed_url(candidate, {OFFICIAL_HOST}):
+                safe_document_url = candidate
+        except _IngestionError:
+            pass
+    if safe_document_url:
+        fields.append(("模型文档", safe_document_url))
+    text = _normalise_text("\n".join(f"{label}：{value}" for label, value in fields if value), max_document_chars)
+    canonical_url = _canonical_url(seed)
+    metadata = {
+        "canonical_url": canonical_url,
+        "content_sha256": _content_hash(text),
+        "content_type": "application/json",
+        "kind": "mim_model",
+        "source_record_id": model_id,
+        "model_name": model_name[:1_000],
+        "engine_code": scalar("engine_code"),
+        "engine_name": scalar("engine_name"),
+        "engine_version": scalar("engine_version"),
+        "model_series": scalar("model_series"),
+        "model_type": scalar("model_type"),
+        "chip_series": chip_series,
+        "gpus": gpus,
+        "precision": scalar("precision"),
+        "maca_version": scalar("maca_version"),
+        "mim_version": scalar("mim_version"),
+        "operating_system": scalar("operating_system"),
+        "distribution": scalar("distribution"),
+        "architecture": scalar("architecture"),
+        "inference_image_url": scalar("inference_image_url"),
+        "document_url": safe_document_url,
+        "published": published if isinstance(published, bool) else None,
+    }
+    version = scalar("mim_version")
+    title = f"MIM 模型：{model_name}"
+    if scalar("engine_name"):
+        title += f"（{scalar('engine_name')}）"
+    document = _build_document(
+        id=_stable_id("official", f"{canonical_url}#mim-model-{model_id}"),
+        source="official",
+        title=title[:1_000],
+        url=canonical_url,
+        text=text,
+        version=version,
+        repository="",
+        path=f"mim/models/{model_id}",
+        revision="",
+        fetched_at=_now(),
+        metadata=metadata,
+    )
+    return document
+
+
+def _sync_official_mim_catalog(
+    store: Any,
+    fetcher: _HttpFetcher,
+    stats: dict[str, Any],
+    *,
+    seed: str,
+    max_pages: int,
+    max_document_chars: int,
+) -> None:
+    model_rows, catalog_reasons = _official_mim_catalog_entries(fetcher, max_pages=max_pages)
+    for reason in catalog_reasons:
+        if reason.startswith("catalog page "):
+            _add_error(stats, url=MIM_CATALOG_API, error=reason)
+        else:
+            _mark_truncated(stats, reason)
+    seen_model_ids: set[str] = set()
+    for row in model_rows:
+        stats["discovered"] += 1
+        model_id = str(row.get("id") or "")[:128]
+        try:
+            if model_id and model_id in seen_model_ids:
+                raise _IngestionError("MIM catalog repeated a model id")
+            if model_id:
+                seen_model_ids.add(model_id)
+            document = _official_mim_model_document(
+                seed,
+                row,
+                max_document_chars=max_document_chars,
+            )
+            _store_document(store, document, stats)
+        except Exception as exc:
+            _add_error(stats, url=MIM_CATALOG_API, error=exc, path=f"model/{model_id}")
+
+
 def _sync_official(
     store: Any,
     config: Mapping[str, Any],
@@ -926,6 +1138,20 @@ def _sync_official(
         _add_error(stats, url="", error="no valid official seeds; seed a static preview page or catalog")
         return
 
+    raw_prefixes = config.get("crawl_path_prefixes") or []
+    if not isinstance(raw_prefixes, Sequence) or isinstance(raw_prefixes, (str, bytes, bytearray)):
+        _add_error(stats, url="", error="official.crawl_path_prefixes must be a list of absolute paths")
+        return
+    if len(raw_prefixes) > HARD_MAX_SEEDS:
+        _mark_truncated(stats, f"crawl path prefix limit {HARD_MAX_SEEDS}")
+    path_prefixes: list[str] = []
+    for raw in list(raw_prefixes)[:HARD_MAX_SEEDS]:
+        if not isinstance(raw, str) or not raw.startswith("/") or "?" in raw or "#" in raw or ".." in raw.split("/"):
+            _add_error(stats, url=str(raw), error="official crawl path prefixes must be normalized absolute paths")
+            continue
+        prefix = raw if raw.endswith("/") else raw + "/"
+        if prefix not in path_prefixes:
+            path_prefixes.append(prefix)
     max_pages_requested = _bounded_int(config.get("max_pages", 100), 100, 0, HARD_MAX_PAGES)
     discover = bool(config.get("discover", True))
     # A directory seed is a dynamic Next.js shell.  Resolve it through the
@@ -967,11 +1193,30 @@ def _sync_official(
             queue.append(seed)
             queued.add(seed)
     visited: set[str] = set()
+    processed_mim_catalogs: set[str] = set()
     while queue and len(visited) < max_pages_requested:
         url = queue.popleft()
         if url in visited:
             continue
         visited.add(url)
+        parts = urlsplit(url)
+        if parts.path.rstrip("/") == "/llm-inference/mim/models":
+            catalog_key = parts._replace(query="", fragment="").geturl()
+            if catalog_key in processed_mim_catalogs:
+                continue
+            processed_mim_catalogs.add(catalog_key)
+            try:
+                _sync_official_mim_catalog(
+                    store,
+                    fetcher,
+                    stats,
+                    seed=url,
+                    max_pages=max_pages_requested,
+                    max_document_chars=max_document_chars,
+                )
+            except Exception as exc:
+                _add_error(stats, url=MIM_CATALOG_API, error=exc)
+            continue
         stats["discovered"] += 1
         try:
             response = fetcher.get(url)
@@ -994,7 +1239,7 @@ def _sync_official(
             _store_document(store, document, stats)
             if discover:
                 inherited_metadata = catalog_metadata.get(response.url, {})
-                for child in _page_links(page, response.url, fetcher.allowed_hosts):
+                for child in _page_links(page, response.url, fetcher.allowed_hosts, path_prefixes):
                     if child not in visited and child not in queued:
                         queue.append(child)
                         queued.add(child)
