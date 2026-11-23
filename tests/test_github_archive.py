@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import hashlib
 import io
 import json
@@ -116,8 +117,9 @@ def test_archive_host_redirect_cannot_escape():
     assert client.calls == [url]
 
 
-def test_explicit_tilelang_repository_uses_external_owner(monkeypatch):
-    root = 'https://api.github.com/repos/tile-ai/tilelang-metax'
+@pytest.mark.parametrize('repository', ['tile-ai/tilelang-metax', 'ByteDance-Seed/Triton-distributed'])
+def test_explicit_repository_uses_allowlisted_external_owner(monkeypatch, repository):
+    root = 'https://api.github.com/repos/' + repository.lower()
     revision = 'a'*40
     client = FakeClient({
         root: FakeResponse(content=json.dumps({'default_branch': 'dev', 'private': False}).encode()),
@@ -125,9 +127,64 @@ def test_explicit_tilelang_repository_uses_external_owner(monkeypatch):
         root+f'/git/trees/{revision}?recursive=1': FakeResponse(content=b'{"tree": []}'),
     })
     _patch_client(monkeypatch, client)
-    report = sources.sync_sources(MemoryStore(), {'github': {'repositories': ['tile-ai/tilelang-metax']}, 'http': {'rate_limit': 0}}, source='github')
+    report = sources.sync_sources(MemoryStore(), {'github': {'repositories': [repository]}, 'http': {'rate_limit': 0}}, source='github')
     assert report['failed'] == 0
-    assert all('/repos/tile-ai/tilelang-metax' in call for call in client.calls)
+    assert all('/repos/' + repository.lower() in call for call in client.calls)
+
+
+def test_distributed_compiler_sources_and_build_files_are_selected():
+    paths = ['README.md', 'include/DistributedOps.td', 'test/metax/wait.mlir', 'project.mk',
+             'third-party/nvshmem.patch', 'python/api.pyi', 'assets/readme-banner.png', 'asset/plot.png']
+    tree = {'tree': [{'path': path, 'type': 'blob', 'sha': 'a'*40} for path in paths]}
+    files, truncated = sources._github_files(tree, include_code=True, max_files=100)
+    assert {item.path for item in files} == set(paths[:-2])
+    assert not truncated
+    files, _ = sources._github_files(tree, include_code=False, max_files=100)
+    assert {item.path for item in files} == {"README.md"}
+
+
+@pytest.mark.parametrize('patterns,expected,failed', [
+    (['src/*.cc'], {'src/gemm.cc'}, False),
+    (['missing/*.cc'], set(), True),
+    (None, {'src/gemm.cc', 'unrelated.py'}, False),
+])
+def test_repository_include_scope_is_enforced_before_download(monkeypatch, patterns, expected, failed):
+    revision = 'a'*40
+    root = 'https://api.github.com/repos/MetaX-MACA/Onnxruntime'
+    raw = b'mcblasLtMatmul();\n'
+    sha = blob_sha(raw)
+    client = FakeClient({
+        root: FakeResponse(content=b'{"default_branch":"main","private":false}'),
+        root+'/commits/main': FakeResponse(content=json.dumps({'sha': revision}).encode()),
+        root+f'/git/trees/{revision}?recursive=1': FakeResponse(content=json.dumps({'tree': [
+            {'path': path, 'sha': sha, 'type': 'blob', 'size': len(raw)}
+            for path in ['src/gemm.cc', 'unrelated.py']
+        ]}).encode()),
+        root+f'/git/blobs/{sha}': FakeResponse(content=json.dumps({
+            'encoding': 'base64', 'content': base64.b64encode(raw).decode(),
+        }).encode()),
+    })
+    _patch_client(monkeypatch, client)
+    github = {'repositories': ['Onnxruntime'], 'include_code': True}
+    if patterns is not None:
+        github['repository_include_globs'] = {'MetaX-MACA/Onnxruntime': patterns}
+    store = MemoryStore()
+    report = sources.sync_sources(store, {'github': github, 'http': {'rate_limit': 0}}, source='github')
+    assert {document.path for document in store.documents.values()} == expected
+    assert bool(report['failed']) is failed
+    if failed:
+        assert report['partial']
+        assert not any('/git/blobs/' in call for call in client.calls)
+
+
+@pytest.mark.parametrize('patterns', [[], '', [''], [False]])
+def test_invalid_repository_include_scope_does_not_fetch(monkeypatch, patterns):
+    client = FakeClient({})
+    _patch_client(monkeypatch, client)
+    report = sources.sync_sources(MemoryStore(), {'github': {
+        'repositories': ['Onnxruntime'], 'repository_include_globs': {'MetaX-MACA/Onnxruntime': patterns},
+    }}, source='github')
+    assert report['failed'] and not client.calls
 
 
 def test_archive_compressed_bound_is_reported(monkeypatch):

@@ -14,6 +14,7 @@ import re
 import sqlite3
 import unicodedata
 from collections.abc import Mapping
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -350,6 +351,7 @@ class Store:
         else:
             self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
+        self._transaction_depth = 0
         self._conn.execute("PRAGMA foreign_keys = ON")
         self._conn.execute("PRAGMA busy_timeout = 5000")
         if readonly:
@@ -421,6 +423,19 @@ class Store:
             if "fts5" in str(exc).lower() or "no such module" in str(exc).lower():
                 raise RuntimeError("SQLite FTS5 support is required") from exc
             raise
+
+    @contextmanager
+    def transaction(self):
+        """Group ingestion writes in one commit; nested upserts share it."""
+        if self._transaction_depth:
+            yield
+            return
+        self._transaction_depth += 1
+        try:
+            with self._conn:
+                yield
+        finally:
+            self._transaction_depth -= 1
 
     @staticmethod
     def _validate_document(document: Document) -> tuple[Document, str, str]:
@@ -496,7 +511,7 @@ class Store:
         changed = row is None or tuple(row) != values
         fetched_at = document.fetched_at or now
 
-        with self._conn:
+        with self.transaction():
             if row is None:
                 self._conn.execute(
                     """
@@ -508,7 +523,7 @@ class Store:
                     (document.id, *values[:8], fetched_at, metadata_json, content_hash),
                 )
                 self._replace_sections(document.id, document.text)
-                self._replace_fts(document.id, document.title, document.text)
+                self._insert_fts(document.id, document.title, document.text)
             elif changed:
                 self._conn.execute(
                     """
@@ -519,7 +534,8 @@ class Store:
                     (*values[:8], fetched_at, metadata_json, content_hash, document.id),
                 )
                 self._replace_sections(document.id, document.text)
-                self._replace_fts(document.id, document.title, document.text)
+                self._conn.execute("DELETE FROM documents_fts WHERE document_id=?", (document.id,))
+                self._insert_fts(document.id, document.title, document.text)
             else:
                 # Always refresh on an unchanged fetch.  The generated value is
                 # intentionally independent of a stale source supplied value.
@@ -555,8 +571,9 @@ class Store:
             ],
         )
 
-    def _replace_fts(self, document_id: str, title: str, text: str) -> None:
-        self._conn.execute("DELETE FROM documents_fts WHERE document_id=?", (document_id,))
+    def _insert_fts(self, document_id: str, title: str, text: str) -> None:
+        # document_id is UNINDEXED in FTS5. Deleting a nonexistent new ID
+        # would scan the whole existing corpus for every inserted file.
         self._conn.execute(
             "INSERT INTO documents_fts(document_id, title, text) VALUES (?, ?, ?)",
             (document_id, title, text),
@@ -694,6 +711,9 @@ class Store:
                     score += 4.0
             if normalised_query and normalised_query in haystack:
                 score += 2.0
+            if normalised_query in {_normalise(str(row["title"])), _normalise(str(row["path"]))}:
+                # An exact file/title lookup should beat repeated mentions.
+                score += 25.0 * max(1, len(terms))
             # Keep deterministic ordering for equal scores and prefer newer
             # fetched entries only when relevance is otherwise identical.
             score += min(len(str(row["text"])), MAX_TEXT_CHARS) / MAX_TEXT_CHARS * 0.001

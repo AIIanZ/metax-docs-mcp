@@ -3,19 +3,20 @@
 Run with .venv/bin/python scripts/refresh_index.py from any directory.
 Failed or truncated crawls never replace the serving database.
 
-GitHub's unauthenticated API allows few requests per hour, and the configured
-organization now needs more than one window to finish.  The crawl therefore
-runs GitHub in small batches into a single staging database and, when a batch
-fails only because of API rate limiting, waits for the published reset time and
-retries it instead of discarding the whole run.  Nothing is published until
-every source and the MCP probes pass.
+The shipped configuration reads GitHub through the logged-in gh CLI. Batches
+share a staging database and retry only API rate-limit failures from a saved
+checkpoint. --add-new-repositories retains the serving snapshot and adds only
+repositories not already indexed. Publication requires complete coverage,
+SQLite/FTS integrity, and MCP search/readback probes for every repository.
 """
 from __future__ import annotations
 
 import fcntl
+import argparse
 import json
 import os
 import re
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -27,6 +28,9 @@ from tempfile import TemporaryDirectory
 from typing import Any
 
 import httpx
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from metax_docs_mcp.github_gh import api as gh_api
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -52,8 +56,14 @@ def run_logged(command: list[str], output: Path, errors: Path) -> int:
     rate-limited crawl can be inspected and retried instead of discarded.
     """
 
+    env = os.environ.copy()
+    source_path = str(ROOT / "src")
+    inherited_path = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = os.pathsep.join(
+        path for path in (source_path, inherited_path) if path
+    )
     with output.open("w") as out, errors.open("w") as err:
-        result = subprocess.run(command, cwd=ROOT, stdout=out, stderr=err, check=False)
+        result = subprocess.run(command, cwd=ROOT, env=env, stdout=out, stderr=err, check=False)
     return int(result.returncode or 0)
 
 
@@ -97,15 +107,12 @@ def rate_limited(report: dict) -> bool:
 def wait_for_github_reset(label: str) -> None:
     """Sleep until GitHub's published rate-limit reset, then return."""
 
-    headers = {"Accept": "application/vnd.github+json", "User-Agent": "metax-docs-mcp-refresh"}
-    if os.environ.get("GITHUB_TOKEN"):
-        headers["Authorization"] = "Bearer " + os.environ["GITHUB_TOKEN"]
     delay = RATE_LIMIT_MARGIN
     try:
-        with httpx.Client(timeout=30, headers=headers) as client:
-            response = client.get(GITHUB_RATE_LIMIT_URL)
-            response.raise_for_status()
-            core = response.json()["resources"]["core"]
+        raw, truncated = gh_api("rate_limit", max_bytes=1_000_000, timeout=30)
+        if truncated:
+            raise RuntimeError("GitHub rate-limit response exceeded bound")
+        core = json.loads(raw)["resources"]["core"]
         remaining = int(core.get("remaining", 0))
         if remaining <= 0:
             delay = max(RATE_LIMIT_MARGIN, float(core["reset"]) - time.time() + RATE_LIMIT_MARGIN)
@@ -143,7 +150,14 @@ def sync_with_retry(staging: Path, config_path: Path, directory: Path, label: st
             report = read_report(output)
             if exit_code == 0 and not report.get("failed"):
                 return report
+            history = directory / "failed"
+            history.mkdir(exist_ok=True)
+            attempt = time.time_ns()
+            for path in (output, errors):
+                if path.exists():
+                    shutil.copyfile(path, history / f"{attempt}-{path.name}")
             if not rate_limited(report):
+                copy_database(checkpoint, directory / "resume.sqlite3")
                 raise RuntimeError(f"Command exited {exit_code}; see {output} and {errors}")
             waits += 1
             if waits > MAX_RATE_LIMIT_WAITS:
@@ -210,7 +224,7 @@ def merge_reports(reports: list[dict]) -> dict:
     return merged
 
 
-def sync_all(staging: Path, snapshot: Path, directory: Path) -> dict:
+def sync_all(staging: Path, snapshot: Path, directory: Path, *, resume: bool = False) -> dict:
     """Synchronize every configured source into *staging*.
 
     Non-GitHub sources run once; GitHub runs in batches so a rate-limit window
@@ -221,11 +235,19 @@ def sync_all(staging: Path, snapshot: Path, directory: Path) -> dict:
 
     config = json.loads(snapshot.read_text())
     reports: list[dict] = []
+    def batch(path: Path, value: dict, label: str) -> dict:
+        previous = read_report(directory / f"sync-{label}.json")
+        if resume and previous and not any(previous.get(key) for key in ("failed", "partial", "truncated")):
+            if read_report(path) != value:
+                raise RuntimeError(f"Completed batch configuration changed: {label}")
+            print(f"Reusing completed batch {label}", flush=True)
+            return previous
+        save(path, value)
+        return sync_with_retry(staging, path, directory, label)
     others = {name: value for name, value in config.items() if name != "github"}
     if any(name in config for name in ("official", "docker")):
         path = directory / "sources-other.json"
-        save(path, others)
-        reports.append(sync_with_retry(staging, path, directory, "other"))
+        reports.append(batch(path, others, "other"))
     github = config.get("github")
     repositories = list(github.get("repositories") or []) if isinstance(github, dict) else []
     if repositories:
@@ -233,9 +255,8 @@ def sync_all(staging: Path, snapshot: Path, directory: Path) -> dict:
         groups = [repositories[index : index + size] for index in range(0, len(repositories), size)]
         for index, group in enumerate(groups, start=1):
             path = directory / f"sources-github-{index:02d}.json"
-            save(path, {"github": {**github, "repositories": group}, "http": config.get("http", {})})
             print(f"GitHub batch {index}/{len(groups)}: {', '.join(group)}", flush=True)
-            reports.append(sync_with_retry(staging, path, directory, f"github-{index:02d}"))
+            reports.append(batch(path, {"github": {**github, "repositories": group}, "http": config.get("http", {})}, f"github-{index:02d}"))
     if not reports:
         raise RuntimeError("config selects no source to synchronize")
     return merge_reports(reports)
@@ -263,9 +284,15 @@ def current_config(path: Path) -> dict:
     try:
         with httpx.Client(timeout=60, headers=headers, follow_redirects=False) as client:
             for page in range(1, 11):
-                response = client.get(f"https://api.github.com/repos/{repository}/branches", params={"per_page": 100, "page": page})
-                response.raise_for_status()
-                branches = response.json()
+                if github.get("client") == "gh":
+                    raw, truncated = gh_api(f"repos/{repository}/branches?per_page=100&page={page}", max_bytes=8 * 1024 * 1024)
+                    if truncated:
+                        raise RuntimeError("SGLang branches response exceeded bound")
+                    branches = json.loads(raw)
+                else:
+                    response = client.get(f"https://api.github.com/repos/{repository}/branches", params={"per_page": 100, "page": page})
+                    response.raise_for_status()
+                    branches = response.json()
                 if not isinstance(branches, list):
                     raise RuntimeError("Invalid SGLang branch response")
                 for branch in branches:
@@ -298,20 +325,56 @@ def changes(staging: Path) -> dict[str, int]:
         }
 
 
-def refresh() -> int:
+def refresh(new_repositories_only: bool = False, resume_directory: Path | None = None) -> int:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
-    directory = DATA / "refresh" / stamp
-    directory.mkdir(parents=True)
+    directory = resume_directory.resolve() if resume_directory else DATA / "refresh" / stamp
+    directory.mkdir(parents=True, exist_ok=bool(resume_directory))
     staging = directory / "index.sqlite3"
     config = ROOT / "examples" / "sources.json"
     # Preserve the exact source selection used by this run.
     snapshot = directory / "sources.json"
-    report = {"started_at": stamp, "published": False, "run_directory": str(directory)}
-    save(directory / "result.json", report)
+    report = read_report(directory / "result.json") if resume_directory else {"started_at": stamp, "published": False, "run_directory": str(directory)}
     try:
-        save(snapshot, current_config(config))
+        resolved_config = current_config(config)
+        if resume_directory:
+            if not report or report.get("published") or read_report(snapshot) != resolved_config:
+                raise RuntimeError("Resume requires an unpublished run with unchanged source configuration")
+            checkpoint = directory / "resume.sqlite3"
+            completed_sync = read_report(directory / "sync.json")
+            if completed_sync and not any(completed_sync.get(key) for key in ("failed", "partial", "truncated")):
+                if not staging.is_file():
+                    raise RuntimeError("Completed crawl staging database is missing")
+            else:
+                if not checkpoint.is_file():
+                    raise RuntimeError("Resume requires a saved checkpoint before the failed batch")
+                copy_database(checkpoint, staging)
+            new_repositories_only = report.get("mode") == "add_new_repositories"
+            report.setdefault("previous_attempts", []).append({key: report[key] for key in ("error", "finished_at") if key in report})
+            report.setdefault("resumed_at", []).append(stamp)
+            report.pop("error", None)
+        else:
+            save(snapshot, resolved_config)
+        save(directory / "result.json", report)
         print(f"Rebuilding index; logs: {directory}", flush=True)
-        sync = sync_all(staging, snapshot, directory)
+        if new_repositories_only:
+            resolved = json.loads(snapshot.read_text())
+            github = resolved["github"]
+            with sqlite3.connect(f"{LIVE.as_uri()}?mode=ro", uri=True) as conn:
+                existing = {row[0].lower() for row in conn.execute("SELECT DISTINCT repository FROM documents WHERE source='github'")}
+            def full_name(name):
+                return name if "/" in name else f"{github.get('organization', 'MetaX-MACA')}/{name}"
+            selected = [name for name in github["repositories"] if full_name(name).lower() not in existing]
+            added = [full_name(name) for name in selected]
+            if resume_directory and report.get("added_repositories") != added:
+                raise RuntimeError("Serving repository selection changed since the saved run")
+            report.update(mode="add_new_repositories", added_repositories=added, skipped_repositories=sorted(existing))
+            if not resume_directory:
+                copy_database(LIVE, staging)
+            additions = directory / "sources-new.json"
+            save(additions, {"github": {**github, "repositories": selected}, "http": resolved.get("http", {})})
+            sync = sync_all(staging, additions, directory, resume=bool(resume_directory)) if selected else {"failed": 0, "partial": False, "truncated": False, "indexed": 0}
+        else:
+            sync = sync_all(staging, snapshot, directory, resume=bool(resume_directory))
         save(directory / "sync.json", sync)
         if sync.get("failed") or sync.get("partial") or sync.get("truncated"):
             raise RuntimeError("Crawl is incomplete; serving index was preserved")
@@ -363,10 +426,14 @@ def refresh() -> int:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--add-new-repositories", action="store_true", help="retain the serving snapshot and ingest only GitHub repositories not already indexed")
+    parser.add_argument("--resume", type=Path, help="resume an unpublished run from its saved failed-batch checkpoint")
+    args = parser.parse_args()
     DATA.mkdir(exist_ok=True)
     with (DATA / "refresh.lock").open("a+") as lock:
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             raise SystemExit("Another index refresh is already running")
-        raise SystemExit(refresh())
+        raise SystemExit(refresh(new_repositories_only=args.add_new_repositories, resume_directory=args.resume))

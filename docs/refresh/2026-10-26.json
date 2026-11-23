@@ -8,15 +8,14 @@
     "official_manual_series": 11,
     "github_repositories": 13,
     "github_transport": "archive",
+    "sglang_release": "release/v0.5.14",
     "docker_filter": {
       "chip_name": "MXC500",
       "package_kind": "MXMACA",
       "dimension": "docker",
       "deliver_type": "分层包"
     },
-    "max_document_chars": 1000000,
-    "sglang_release_configured": "release/v0.5.14",
-    "sglang_release_resolved": "release/v0.5.21"
+    "max_document_chars": 1000000
   },
   "counts": {
     "before": {

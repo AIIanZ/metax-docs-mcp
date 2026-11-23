@@ -17,17 +17,23 @@
       "运行时API编程指南",
       "MXMACA运行时API参考",
       "mxcc编译器用户指南",
-      "MXMACA 编译器内建函数编程指南",
+      "MXMACA编译器内建函数编程指南",
       "mcProfiler使用手册",
       "mcTracer使用手册",
       "mcTriton用户指南",
       "MCCL编程指南",
+      "mcBLAS API参考",
       "AI推理用户手册"
     ]
   },
   "github": {
     "organization": "MetaX-MACA",
     "repositories": [
+      "ByteDance-Seed/Triton-distributed",
+      "mccl-nccl",
+      "MXDeepEP",
+      "mccl_tests",
+      "Onnxruntime",
       "vLLM-metax",
       "sglang",
       "maca-samples",
@@ -40,9 +46,59 @@
       "op_optimization",
       "TileOPs-Metax",
       "TileKernels-Metax",
-      "tile-ai/tilelang-metax"
+      "tile-ai/tilelang-metax",
+      "MetaX-MACA/modelzoo",
+      "MetaX-MACA/FlashMLA",
+      "MetaX-MACA/DeepEP",
+      "MetaX-MACA/3FS",
+      "MetaX-MACA/Embodied_AI_Simulation",
+      "MetaX-MACA/mcPytorch",
+      "MetaX-MACA/Autonomous_Driving_Simulation",
+      "MetaX-MACA/mcApex",
+      "MetaX-MACA/mcSolver",
+      "MetaX-MACA/mcSparse",
+      "MetaX-MACA/mcXformer",
+      "MetaX-MACA/ppl.llm.serving",
+      "MetaX-MACA/mcEigen",
+      "MetaX-MACA/mcTVM",
+      "MetaX-MACA/DocFlowAI",
+      "MetaX-MACA/QuickGuide",
+      "MetaX-MACA/mxRmmx",
+      "MetaX-MACA/mcFaiss",
+      "MetaX-MACA/mxJitify",
+      "MetaX-MACA/mxCuco",
+      "MetaX-MACA/mcdf",
+      "MetaX-MACA/mxNumbax",
+      "MetaX-MACA/mcpy",
+      "MetaX-MACA/mxDlrover",
+      "MetaX-MACA/mxFIO",
+      "MetaX-MACA/MetaX-MACA.github.io",
+      "MetaX-MACA/VirtualHuman",
+      "MetaX-MACA/simple-jenkins-githubaction",
+      "MetaX-MACA/mxExporter",
+      "MetaX-MACA/hpc_warp",
+      "MetaX-MACA/go-mxsml",
+      "MetaX-MACA/pymxsml",
+      "MetaX-MACA/vllm-omni-metax",
+      "MetaX-MACA/AIModels",
+      "MetaX-MACA/mcFlashMLA",
+      "MetaX-MACA/Physics",
+      "MetaX-MACA/LifeScience",
+      "MetaX-MACA/MedicalImage",
+      "MetaX-MACA/AI4S-Framework",
+      "MetaX-MACA/LMCache",
+      "MetaX-MACA/GeoScience",
+      "MetaX-MACA/fio",
+      "MetaX-MACA/Materials",
+      "MetaX-MACA/WeatherForecast",
+      "MetaX-MACA/mcfile-python",
+      "MetaX-MACA/metax-ai4s",
+      "MetaX-MACA/Mooncake",
+      "MetaX-MACA/metax-lifescience-toolkit",
+      "MetaX-MACA/verl-metax",
+      "MetaX-MACA/goutils"
     ],
-    "max_files_per_repo": 10000,
+    "max_files_per_repo": 50000,
     "include_code": true,
     "transport": "archive",
     "max_archive_bytes": 134217728,
@@ -55,7 +111,21 @@
     "repository_refs": {
       "MetaX-MACA/sglang": "release/v0.5.14"
     },
+    "repository_include_globs": {
+      "MetaX-MACA/Onnxruntime": [
+        "README*",
+        "cmake/external/ppl.nn/cmake/cuda.cmake",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/cuda_device.*",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernel.h",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/onnx/gemm_kernel.*",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/onnx/matmul_kernel.*",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/pmx/batch_gemm_kernel.cc"
+      ]
+    },
     "repository_exclude_globs": {
+      "MetaX-MACA/MXDeepEP": [
+        "third-party/include/**"
+      ],
       "MetaX-MACA/vLLM-metax": [
         "tools/models/Qwen3.8-Flash-Next-dummy-3layers/merges.txt",
         "tools/models/Qwen3.8-Flash-Next-dummy-3layers/vocab.json"
@@ -72,7 +142,18 @@
         "third_party/json/**",
         "third_party/pybind11/**",
         "third_party/proton/**"
+      ],
+      "MetaX-MACA/modelzoo": [
+        "**/data/instances_val2017.json"
+      ],
+      "MetaX-MACA/ppl.llm.serving": [
+        "tools/samples_8192.json"
       ]
+    },
+    "client": "gh",
+    "index_repository_metadata": true,
+    "repository_transports": {
+      "MetaX-MACA/Embodied_AI_Simulation": "api"
     }
   },
   "docker": {
@@ -84,8 +165,9 @@
     "max_items": 2000
   },
   "http": {
-    "timeout": 60,
+    "timeout": 120,
     "retries": 2,
-    "max_document_chars": 1000000
+    "max_document_chars": 10000000,
+    "max_response_bytes": 8388608
   }
 }

@@ -25,7 +25,8 @@
 | `attention-flash` | 算子族 | Attention / Flash 类算子 | 4 |
 | `quantization` | 算子族 | 量化与量化 GEMM 算子 | 3 |
 | `gemm-matlass` | 算子族 | GEMM 与模板库（MATLASS / CUTLASS 扩展） | 3 |
-| `comm` | 算子族 | 通信算子（MCCL） | 3 |
+| `comm` | 算子族 | 通信算子（MCCL） | 7 |
+| `comm-fusion` | 算子族 | 通信计算融合（Triton-distributed / MXDeepEP / MXSHMEM / mcBLASLt） | 11 |
 | `inference-custom-op` | 交付 | 推理引擎自定义算子（MacaRT / ONNX） | 2 |
 
 ## 算子开发总览：从源码到部署（`overview`）
@@ -327,8 +328,39 @@ MCCL 是多卡通信库，提供集合通信原语；mcoplib 内有 all_reduce /
 **参考**：
 
 - MCCL 编程指南（official: 沐曦通用GPU MCCL编程指南）
+- MCCL Ring 拓扑（MetaX-MACA/mccl-nccl: src/graph/rings.cc → 环构建与 rank 连接）
+- MCCL AllReduce kernel（MetaX-MACA/mccl-nccl: src/device/all_reduce.h → Ring 与归约实现）
+- MCCL 同步原语（MetaX-MACA/mccl-nccl: src/device/prims_simple.h → simple 协议的数据传输与等待）
+- MCCL 测试示例（MetaX-MACA/mccl_tests: src/all_reduce.cu → AllReduce 调用与校验）
 - 通信算子分类（MetaX-MACA/mcoplib: docs/op_kernel_classification.md → AllReduce / Custom AllReduce / MSCCLPP 清单）
 - allreduce 内核解读（MetaX-MACA/mcoplib: docs/minimax_allreduce_rms_qk_analysis.md → minimax_allreduce_rms_qk 的源码级分析）
+
+## 通信计算融合（Triton-distributed / MXDeepEP / MXSHMEM / mcBLASLt）（`comm-fusion`）
+
+**阶段**：算子族
+
+Triton-distributed 提供 MetaX 后端、AllGather + GEMM kernel 和 MXSHMEM 公开绑定；MXDeepEP 提供 Dispatch/Combine kernel。mcBLASLt 的公开调用示例来自沐曦 Onnxruntime。当前资料未确认 MXSHMEM 底层完整源码及 mcBLASLt GEMM + Communication API 文档的公开入口。
+
+**可执行步骤**：
+
+1. 先读 MetaX 的 AllGather + GEMM 实现和单机、多机测试，再检查编译后端如何降低通信与同步指令。
+2. 研究 GPU 远端访存时，对照 MXSHMEM 的设备端符号、主机绑定和 ring put 示例。
+3. 研究 MoE 时，对照 MXDeepEP Python Buffer 接口、通信 kernel 与测试中的 Dispatch/Combine 调用。
+4. 用公开 mcBLASLt GEMM 调用理解描述符与矩阵布局；融合接口的行为须以实际可得的厂商文档为准。
+
+**参考**：
+
+- MetaX AllGather + GEMM（bytedance-seed/triton-distributed: python/triton_dist/kernels/metax/allgather_gemm.py → 通信计算重叠实现）
+- MetaX 跨机融合测试（bytedance-seed/triton-distributed: python/triton_dist/test/metax/test_ag_gemm_inter_node.py → 调用参数、校验与性能测试）
+- MetaX 编译后端（bytedance-seed/triton-distributed: lib/Conversion/TritonDistributedToLLVM/METAX/DistributedOpToLLVM.cpp → 分布式指令的 LLVM lowering）
+- MXSHMEM 设备端接口（bytedance-seed/triton-distributed: python/triton_dist/language/extra/maca/libmxshmem_device.py → put、signal、fence 与 barrier 绑定）
+- MXSHMEM 主机绑定（bytedance-seed/triton-distributed: shmem/mxshmem_bind/pymxshmem/src/pymxshmem.cc → Python 到 C++ 的接口）
+- MXSHMEM ring put 示例（bytedance-seed/triton-distributed: shmem/mxshmem_bind/pymxshmem/example/run_ring_put.py → 远端写入与同步的调用示例）
+- MXDeepEP Buffer 接口（MetaX-MACA/MXDeepEP: deep_ep/buffer.py → Dispatch/Combine 参数与缓冲区管理）
+- MXDeepEP 通信 kernel（MetaX-MACA/MXDeepEP: csrc/kernels/* → 单机与跨机通信实现）
+- MXDeepEP 示例与校验（MetaX-MACA/MXDeepEP: tests/test_intranode.py → 单机 Dispatch/Combine 测试）
+- mcBLAS API 参考（official: 沐曦通用GPU mcBLAS API参考）
+- mcBLASLt GEMM 调用（MetaX-MACA/Onnxruntime: cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/onnx/gemm_kernel.cc → 描述符、矩阵布局与 Matmul 调用示例）
 
 ## 推理引擎自定义算子（MacaRT / ONNX）（`inference-custom-op`）
 

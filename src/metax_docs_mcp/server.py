@@ -31,8 +31,10 @@ _INJECTION_NOTE = (
 )
 
 _SEARCH_DESCRIPTION = (
-    "Search indexed MACA programming manuals, MetaX vLLM/SGLang source code, "
-    "GPU samples, operator/TileLang code, and the Docker catalog. "
+    "Search indexed MACA programming manuals and public MetaX-MACA repositories, "
+    "including PyTorch, vLLM/SGLang, Cython and scientific-computing source code, "
+    "GPU samples, operator/TileLang code, Triton-distributed MetaX/MXSHMEM bindings, "
+    "MCCL/MXDeepEP kernels, mcBLASLt call examples, and the Docker catalog. "
     "The source filter accepts official, github, or docker; repository uses owner/name. "
     "Use MetaX-MACA/vLLM-metax or MetaX-MACA/sglang to scope framework code. "
     "Search exact API names, symbols, filenames, or error strings, then read the hit. "
@@ -51,7 +53,7 @@ _SOURCES_DESCRIPTION = (
 _GUIDE_DESCRIPTION = (
     "Curated operator-development guide for MetaX/MACA: call without a topic to list topics "
     "(kernel writing, mcoplib layout, adding an op, benchmark, profiling, C500/C600 "
-    "optimization, Triton, TileLang, attention, quantization, GEMM, MCCL, MacaRT custom ops), "
+    "optimization, Triton, TileLang, attention, quantization, GEMM, MCCL, comm-fusion, MacaRT custom ops), "
     "then call with one topic slug to resolve it to indexed documents with a read order. "
     "References are repository paths or official manual titles, so they follow index refreshes. "
     "Each documented path is resolved before it is returned; unmatched references are reported "
