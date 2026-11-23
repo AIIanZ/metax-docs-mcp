@@ -4,10 +4,11 @@
 
 ## 安装与首次同步
 
-需要 Python 3.11+ 和 [uv](https://docs.astral.sh/uv/)。在本项目根目录执行：
+需要 Python 3.11+、[uv](https://docs.astral.sh/uv/) 和已登录的 [GitHub CLI](https://cli.github.com/)。在本项目根目录执行：
 
 ```sh
 uv sync --locked --group dev --no-editable
+gh auth status
 uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 sync --config examples/sources.json
 uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 sources
 uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'mx-smi'
@@ -15,7 +16,7 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'maca' --sou
 uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'MXMACA' --source docker
 ```
 
-`sync` 的 JSON 结果会报告失败及范围上限。退出码 `0` 表示选定范围完成，`1` 表示存在失败，`2` 表示达到配置上限、范围不完整。首次同步可能只建立部分索引；先看同步报告与 `sources`，不要假设已经覆盖全部官方文档或全部 GitHub 仓库。GitHub 未认证 API 有速率限制；如需 token，使用进程环境变量 `GITHUB_TOKEN`，不要写进配置文件或提交到仓库。
+`sync` 的 JSON 结果会报告失败及范围上限。退出码 `0` 表示选定范围完成，`1` 表示存在失败，`2` 表示达到配置上限、范围不完整。首次同步可能只建立部分索引；先看同步报告与 `sources`。GitHub 默认使用已登录的 `gh`；尚未登录时先运行 `gh auth login`。认证请求仍受 GitHub 配额限制，刷新脚本会识别限流并有界重试。
 
 `scripts/refresh_index.py` 会把 GitHub 按仓库分批抓取，写进同一个 staging 数据库。默认每批 4 个仓库，可用 `METAX_REFRESH_GITHUB_BATCH` 调整。每批开始前保存 SQLite 检查点；仅因 GitHub API 限流失败时，先恢复检查点，再等待限流重置并重试。恢复操作会清除失败尝试写入的正文、章节和全文索引，保留此前已完成的批次，避免等待期间上游删除的文件残留在新索引中。每批检查点在批次结束后清理；抓取期间需要额外容纳一份 staging 数据库的磁盘空间。任何真实的失败、截断或 MCP 验收不通过都会保留原服务索引。
 
@@ -25,16 +26,28 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'MXMACA' --s
 .venv/bin/python scripts/refresh_index.py
 ```
 
+扩充仓库清单时，以下命令复制当前索引，仅采集尚未收录的 GitHub 仓库。已有仓库、官方资料和 Docker 目录保持原快照，新增内容通过相同验收后才发布：
+
+```sh
+.venv/bin/python scripts/refresh_index.py --add-new-repositories
+```
+
+抓取失败后，运行目录中的 `resume.sqlite3` 保存失败批次开始前的检查点。配置未变时，可用 `--resume .data/refresh/<运行目录>` 复用已完成批次，重新抓取失败批次及后续仓库。采集完成而验收失败时，恢复会复用完整暂存库并重新验收。失败日志保存在该运行目录的 `failed/`。
+
 本机已配置每周一 10:00（Asia/Shanghai）执行更新，验收通过后提交代码 PR。每次提交同时记录来源版本、固定 commit、收录数量和验收结果，见 [周更记录](docs/refresh/)。数据库、下载缓存和原始运行日志保留在本机 `.data/`，不进入 Git。自动化配置由本机 Codex 管理，克隆仓库不会自动启用定时任务。
 
 ## 默认收录范围
 
-`examples/sources.json` 开启源码索引，选择以下仓库的快照。SGLang 每次完整刷新会从配置的 MACA 发布分支提示中发现最新稳定适配发布分支，其他仓库使用默认分支：
+`examples/sources.json` 开启源码索引，覆盖 2026-11-09 核对的 MetaX-MACA 全部 66 个公开仓库，以及 2 个跨组织来源。完整清单见 [仓库收录表](docs/REPOSITORIES.md)。SGLang 每次完整刷新会发现最新稳定适配发布分支，其他仓库使用默认分支。部分重点来源如下：
 
 | 来源 | 内容 |
 | --- | --- |
 | `developer.metax-tech.com/llm-inference/sgldocs` | 当前版本的 SGLang 手册及其章节页面 |
 | `developer.metax-tech.com/llm-inference/mim` | 公开 MIM 模型表：框架、GPU、精度、MACA/MIM 版本、系统和镜像引用 |
+| `ByteDance-Seed/Triton-distributed` | 分布式编译器、MetaX 融合 kernel 与测试、MXSHMEM 设备接口和 Python/C++ 绑定、ring put 示例 |
+| `MetaX-MACA/mccl-nccl`、`mccl_tests` | MCCL Ring、归约、同步源码，以及集合通信测试和调用示例 |
+| `MetaX-MACA/MXDeepEP` | Dispatch/Combine 通信 kernel、Python Buffer 接口、构建说明与测试示例 |
+| `MetaX-MACA/Onnxruntime`（限定路径） | mcBLASLt GEMM/Matmul 调用、矩阵布局和描述符、句柄管理与构建依赖 |
 | `MetaX-MACA/vLLM-metax` | 沐曦 vLLM 插件、模型与 Attention 适配、构建和发布文档 |
 | `MetaX-MACA/sglang` | 沐曦 SGLang 分支、调度、模型、算子及部署代码 |
 | `MetaX-MACA/maca-samples`、`gpuBenchmark` | MACA Runtime 示例、C++/GPU kernel 和性能测试方法 |
@@ -45,11 +58,19 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search 'MXMACA' --s
 | `MetaX-MACA/op_optimization` | 算子库优化方案、TileLang MACA 构建与 sample 跑通指南 |
 | `MetaX-MACA/TileOPs-Metax`、`TileKernels-Metax` | TileLang 算子、kernel 和示例 |
 | `tile-ai/tilelang-metax` | MACA 后端、安装文档和编程示例 |
-| 沐曦官方 HTML 手册 | C++、运行时编程与 API、mxcc、内建函数、mcProfiler、mcTracer、mcTriton、MCCL、快速上手和 AI 推理 |
+| 沐曦官方 HTML 手册 | C++、运行时编程与 API、mxcc、内建函数、mcProfiler、mcTracer、mcTriton、MCCL、mcBLAS API、快速上手和 AI 推理 |
 
-官方手册按 `official.series` 中的名称筛选，每次同步重新发现目录中的版本和预览地址。SGLang 手册入口由客户端渲染，采集器沿当前 `latest/` 路径发现 HTML 章节；MIM 模型表通过公开分页 API 读取，文档和镜像链接作为元数据保留，不访问这些链接或下载镜像。GitHub 先固定 commit，读取文件清单，再下载该 commit 的归档。采集器核对文件的 Git blob hash，并在回读元数据中标记 `content_kind=code` 或 `documentation`。归档只在内存中读取，不解压到磁盘；API token 不发送给归档主机。
+官方手册按 `official.series` 中的名称筛选，每次同步重新发现目录中的版本和预览地址。SGLang 手册入口由客户端渲染，采集器沿当前 `latest/` 路径发现 HTML 章节；MIM 模型表通过公开分页 API 读取，文档和镜像链接作为元数据保留，不访问这些链接或下载镜像。
 
-配置仍有上限。官方最多 1000 页，每个仓库最多 10,000 个文档或源码文件。单份正文最多 1,000,000 字符，归档压缩体最多 128 MiB。`github.exclude_globs` 是全局排除模式（大型 tokenizer 数据、一个生成的稀疏测试 JSON、两个大型 HIP/CUDA vendor 头文件）；`github.repository_exclude_globs` 可按 `owner/name` 追加仅对单个仓库生效的模式，用来去掉各仓库 vendored 的重复副本和 vLLM 测试模型中的词表数据，同时保留 MetaX 自己的后端目录。二进制、子模块内容、PDF、Notebook 和未支持的扩展名不采集。任何文件或页数截断都会反映在同步报告中。`mcoplib` 等仓库资料按来源呈现，索引不会确认其中的优化参数是否正确。
+默认 `github.client=gh`。GitHub 元数据、目录树和源码归档均通过 `gh api` 获取，认证由已登录的 `gh` 处理。先固定 commit，再核对归档文件与目录树中的 Git blob hash。回读元数据区分 `code`、`documentation` 和 `repository_metadata`。归档只在内存中读取，不解压到磁盘。
+
+配置仍有上限。官方最多 1000 页，每个仓库最多 50,000 个文档或源码文件，最多配置 128 个仓库。单份正文最多 10,000,000 字符，归档压缩体最多 128 MiB，单个归档文件最多 8 MiB。`github.exclude_globs` 是全局排除模式；`github.repository_exclude_globs` 可按 `owner/name` 追加排除项，用来去掉重复的 vendor 副本和大型数据文件，同时保留 MetaX 自己的后端目录。具体排除项及原因见 [来源说明](docs/SOURCES.md)。
+
+`github.repository_include_globs` 可将单个仓库限定到指定路径；未配置的仓库仍按原范围收录。Onnxruntime 仅收录 mcBLASLt 调用及其直接依赖，MXDeepEP 排除 `third-party/include/**` 中的通用 IB 头文件。
+
+编译器定义、IR、构建文件、源码补丁、Cython、Fortran 和协议定义也纳入源码范围。二进制、符号链接指针、子模块内容、PDF、Notebook 和未支持的扩展名不采集。任何文件或页数截断都会反映在同步报告中。`mcoplib` 等仓库资料按来源呈现，索引不会确认其中的优化参数是否正确。
+
+`github.index_repository_metadata=true` 为仓库补充摘要记录，区分已有文件、没有支持文件和空仓库。摘要标明状态和文件数，有提交时返回固定 commit。刷新验收会逐库检索、回读真实文件；只有空仓库或没有支持文件的仓库允许仅回读摘要。
 
 修改采集器代码后，运行 `uv sync --locked --group dev --no-editable --reinstall-package metax-docs-mcp`，重建本地包，避免复用旧构建缓存。
 
@@ -64,7 +85,11 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search '共享内�
 
 `github.repository_refs` 可按完整仓库名指定分支、标签或 commit。每个仓库每次选择一个 ref，`version` 返回该 ref，`revision` 返回解析后的 commit。配置中的 SGLang `release/v0.5.14` 是稳定适配发布分支的发现种子。每次完整刷新按 `release/vX.Y.Z` 的版本号选择最新稳定分支，再固定并记录解析后的 commit；GitHub 分支发现暂时不可用时回退到配置种子。2026-10-26 实际选择 `release/v0.5.21`，commit 为 `2b6d2c59fe1e171947764dd34172a01a7aeec6ec`。切换分支时应建立新数据库，避免保留原分支已删除的文件。
 
-`github.transport` 支持 `archive` 和 `api`。后者沿用逐文件 GitHub API 下载，适合小范围同步；默认配置使用归档，减少 API 请求。跨组织来源只允许显式列出的 `tile-ai/tilelang-metax`，配置不能任意扩大组织范围。
+`github.transport` 支持 `archive` 和 `api`。后者沿用逐文件 GitHub API 下载，适合小范围同步；默认配置使用归档，减少 API 请求。跨组织来源只允许显式列出的 `tile-ai/tilelang-metax` 和 `ByteDance-Seed/Triton-distributed`，配置不能任意扩大组织范围。
+
+`github.repository_transports` 可按仓库覆盖传输方式。`MetaX-MACA/Embodied_AI_Simulation` 的完整归档含大量素材，超过压缩体上限，因此使用 `api` 读取选定的文本文件。两种方式都通过 `gh` 获取 GitHub 数据，并返回固定 commit。
+
+逐文件读取最多并发 4 个 `gh` 请求。REST 传输连续失败时，通过 `gh` 的 GraphQL 接口读取同一 Git blob，并核对字节数和 Git blob hash；认证拒绝仍按失败处理。
 
 从 search 结果复制文档 `id` 后读取：
 
@@ -72,6 +97,20 @@ uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 search '共享内�
 uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 get '<document_id>' --limit 12000
 uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 section '<document_id>' '<section>'
 ```
+
+## 查通信与融合实现
+
+先调用 `get_operator_guide(topic="comm")` 定位 MCCL 的 Ring、归约与同步代码。调用 `get_operator_guide(topic="comm-fusion")` 可获得 Triton-distributed、MXSHMEM、MXDeepEP 和 mcBLASLt 的阅读路径。
+
+```sh
+.venv/bin/metax-docs-mcp --db .data/index.sqlite3 search 'allgather_gemm' --repository bytedance-seed/triton-distributed
+.venv/bin/metax-docs-mcp --db .data/index.sqlite3 search 'mxshmem_signal_wait_until' --repository bytedance-seed/triton-distributed
+.venv/bin/metax-docs-mcp --db .data/index.sqlite3 search 'mcclBuildRings' --repository MetaX-MACA/mccl-nccl
+.venv/bin/metax-docs-mcp --db .data/index.sqlite3 search 'dispatch' --repository MetaX-MACA/MXDeepEP
+.venv/bin/metax-docs-mcp --db .data/index.sqlite3 search 'mcblasLtMatmul' --repository MetaX-MACA/Onnxruntime
+```
+
+MXSHMEM 当前收录公开设备接口、绑定和示例，底层完整实现尚未找到公开源码入口。mcBLASLt 当前收录沐曦 Onnxruntime 中的实际调用代码；官方 `mcBLAS API参考` 提供普通 mcBLAS 接口。截至 2026-11-09，官方公开文档目录与文件搜索均未返回独立 mcBLASLt 文档，GEMM + Communication API 的公开文档入口仍待确认。来源与范围见 [通信资料说明](docs/SOURCES.md#通信与计算融合资料2026-11-09)。
 
 ## 接入 Codex
 
@@ -120,7 +159,7 @@ args = ["--db", "/absolute/path/metax-docs-mcp/.data/index.sqlite3", "serve"]
 
 ## 算子开发索引
 
-`get_operator_guide` 把「算子开发」拆成 17 个阶段主题（kernel 编写、编译工具链、mcoplib 结构、新增算子、benchmark、profiling、C500/C600 优化、Triton、TileLang、Attention、量化、GEMM/MATLASS、MCCL、推理引擎自定义算子等）。每个主题的引用都指向索引中真实存在的仓库路径或官方手册标题，因此刷新索引后仍能解析；未命中的引用会出现在 `missing_references` 中并让刷新验收失败，而不是静默消失。
+`get_operator_guide` 把「算子开发」拆成 18 个阶段主题（kernel 编写、编译工具链、mcoplib 结构、新增算子、benchmark、profiling、C500/C600 优化、Triton、TileLang、Attention、量化、GEMM/MATLASS、MCCL、通信计算融合、推理引擎自定义算子等）。每个主题的引用都指向索引中真实存在的仓库路径或官方手册标题，因此刷新索引后仍能解析；未命中的引用会出现在 `missing_references` 中并让刷新验收失败，而不是静默消失。
 
 ```sh
 uv run --no-editable metax-docs-mcp --db .data/index.sqlite3 opdev

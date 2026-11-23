@@ -313,3 +313,32 @@ def test_find_documents_rejects_invalid_filters(tmp_path):
             store.find_documents(limit=True)
     finally:
         store.close()
+
+
+def test_bulk_transaction_rolls_back_documents_sections_and_search(tmp_path):
+    store = Store(tmp_path / 'bulk.sqlite3')
+    try:
+        store.upsert(make_document('baseline', text='baseline sentinel'))
+        with pytest.raises(RuntimeError):
+            with store.transaction():
+                store.upsert(make_document('new', text='# Unique\nrollback_sentinel'))
+                raise RuntimeError('repository archive failed')
+        assert store.get_document('new') is None
+        assert not store.search('rollback_sentinel')
+        assert not store._conn.execute("SELECT 1 FROM sections WHERE document_id='new'").fetchone()
+        assert store.get_document('baseline')
+        with store.transaction():
+            store.upsert(make_document('new', text='# Unique\ncommit_sentinel'))
+        assert store.search('commit_sentinel')
+    finally:
+        store.close()
+
+
+def test_exact_filename_beats_many_mentions_in_other_files(tmp_path):
+    store=Store(tmp_path/'files.sqlite3')
+    try:
+        store.upsert(Document(id='exact',source='github',title='MANIFEST.in',path='MANIFEST.in',text='prune docs',repository='MetaX-MACA/example',url='https://github.com/MetaX-MACA/example/MANIFEST.in'))
+        for i in range(120):
+            store.upsert(Document(id=f'mention-{i}',source='github',title='Manifest internals',path=f'manifest/{i}.py',text=('manifest include index input inline install '*30),repository='MetaX-MACA/example',url=f'https://github.com/MetaX-MACA/example/{i}.py'))
+        assert store.search('MANIFEST.in',repository='MetaX-MACA/example',limit=1)[0]['id']=='exact'
+    finally:store.close()

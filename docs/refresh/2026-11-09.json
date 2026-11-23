@@ -1,0 +1,736 @@
+{
+  "date": "2026-11-09",
+  "result": "published",
+  "mode": "supplement",
+  "started_at": "2026-11-09T10:09:22.608090+00:00",
+  "finished_at": "2026-11-09T10:11:43.323210+00:00",
+  "source_config": "examples/sources.json",
+  "scope": {
+    "github_repositories": 18,
+    "official_manual_series": 12,
+    "priority": [
+      "Triton-distributed",
+      "MCCL",
+      "MXDeepEP",
+      "MXSHMEM",
+      "mcBLASLt"
+    ],
+    "github_transport": "archive",
+    "fresh_sources": {
+      "MetaX-MACA/MXDeepEP": 58,
+      "MetaX-MACA/Onnxruntime": 10,
+      "MetaX-MACA/mccl-nccl": 238,
+      "MetaX-MACA/mccl_tests": 35,
+      "bytedance-seed/triton-distributed": 832,
+      "mcBLAS API参考": 3
+    },
+    "retained_sources": "All other source snapshots retain their previous version, revision and fetched_at. The full refresh hit the unauthenticated GitHub API limit; this publication adds only the completely fetched new sources.",
+    "repository_include_globs": {
+      "MetaX-MACA/Onnxruntime": [
+        "README*",
+        "cmake/external/ppl.nn/cmake/cuda.cmake",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/cuda_device.*",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernel.h",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/onnx/gemm_kernel.*",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/onnx/matmul_kernel.*",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/pmx/batch_gemm_kernel.cc"
+      ]
+    },
+    "repository_exclude_globs": {
+      "MetaX-MACA/MXDeepEP": [
+        "third-party/include/**"
+      ],
+      "MetaX-MACA/vLLM-metax": [
+        "tools/models/Qwen3.8-Flash-Next-dummy-3layers/merges.txt",
+        "tools/models/Qwen3.8-Flash-Next-dummy-3layers/vocab.json"
+      ],
+      "MetaX-MACA/McFlashInfer": [
+        "3rdparty/**"
+      ],
+      "MetaX-MACA/flashattn": [
+        "csrc/mctlass/**"
+      ],
+      "MetaX-MACA/mcTriton": [
+        "third_party/amd/**",
+        "third_party/nvidia/**",
+        "third_party/json/**",
+        "third_party/pybind11/**",
+        "third_party/proton/**"
+      ]
+    },
+    "added_source_extensions": [
+      ".td",
+      ".mlir",
+      ".mk",
+      ".patch"
+    ],
+    "sglang_release_resolved": "release/v0.5.21",
+    "existing_repository_extension_expansion": "Newly supported compiler/build/patch file types apply to existing repositories on their next full refresh; this run supplements the five new repositories and mcBLAS API manual only."
+  },
+  "counts": {
+    "before": {
+      "docker": 14,
+      "github": 17785,
+      "official": 113
+    },
+    "after": {
+      "docker": 14,
+      "github": 18958,
+      "official": 116
+    }
+  },
+  "document_changes": {
+    "added": 1176,
+    "removed": 0,
+    "updated": 0,
+    "body_changed": 0,
+    "metadata_only_updated": 0
+  },
+  "repository_revision_changes": {
+    "MetaX-MACA/MXDeepEP": {
+      "before": null,
+      "after": {
+        "repository": "MetaX-MACA/MXDeepEP",
+        "version": "main",
+        "commit": "5ce9cce6efc06f2596b8f395e5cae3c78494699a",
+        "documents": 58
+      }
+    },
+    "MetaX-MACA/Onnxruntime": {
+      "before": null,
+      "after": {
+        "repository": "MetaX-MACA/Onnxruntime",
+        "version": "2.25.2",
+        "commit": "1acd81ff2d0179530d6428361cdba6429a9df62e",
+        "documents": 10
+      }
+    },
+    "MetaX-MACA/mccl-nccl": {
+      "before": null,
+      "after": {
+        "repository": "MetaX-MACA/mccl-nccl",
+        "version": "2.20.5",
+        "commit": "157bc6bb8bc7dd74fb560cd66932356e927e2834",
+        "documents": 238
+      }
+    },
+    "MetaX-MACA/mccl_tests": {
+      "before": null,
+      "after": {
+        "repository": "MetaX-MACA/mccl_tests",
+        "version": "main",
+        "commit": "1e44d4af1b177f2ab9e23bdd0b393ad757d08f4e",
+        "documents": 35
+      }
+    },
+    "bytedance-seed/triton-distributed": {
+      "before": null,
+      "after": {
+        "repository": "bytedance-seed/triton-distributed",
+        "version": "main",
+        "commit": "7908e4ea9010bb2238f9f05b28c904fd4b71c60a",
+        "documents": 832
+      }
+    }
+  },
+  "current_github_revisions": [
+    {
+      "repository": "MetaX-MACA/MXDeepEP",
+      "version": "main",
+      "commit": "5ce9cce6efc06f2596b8f395e5cae3c78494699a",
+      "documents": 58
+    },
+    {
+      "repository": "MetaX-MACA/McFlashInfer",
+      "version": "master",
+      "commit": "4d23f89fab846c48f40dc096a90fcb2b3ea3e006",
+      "documents": 198
+    },
+    {
+      "repository": "MetaX-MACA/Onnxruntime",
+      "version": "2.25.2",
+      "commit": "1acd81ff2d0179530d6428361cdba6429a9df62e",
+      "documents": 10
+    },
+    {
+      "repository": "MetaX-MACA/TileKernels-Metax",
+      "version": "dev",
+      "commit": "0266ab740980de7dc03a828b8259cd73d100c2eb",
+      "documents": 124
+    },
+    {
+      "repository": "MetaX-MACA/TileOPs-Metax",
+      "version": "dev",
+      "commit": "a40cd4480a56a2acfaff21ec7ca1636c986f7608",
+      "documents": 638
+    },
+    {
+      "repository": "MetaX-MACA/flashattn",
+      "version": "2.25.2",
+      "commit": "8f279843ce18cb5c1c9e695267e28060d0b6273c",
+      "documents": 1068
+    },
+    {
+      "repository": "MetaX-MACA/gpuBenchmark",
+      "version": "main",
+      "commit": "c036397faf50b02173820f4ceba61771c473c181",
+      "documents": 56
+    },
+    {
+      "repository": "MetaX-MACA/maca-samples",
+      "version": "main",
+      "commit": "e6de14cc4d9248768d066a1475450ed7705fd766",
+      "documents": 70
+    },
+    {
+      "repository": "MetaX-MACA/mcTlass",
+      "version": "2.20.2",
+      "commit": "3d125cdd2ae265d6f76c5f5ac3d2cadcd2bfb47d",
+      "documents": 398
+    },
+    {
+      "repository": "MetaX-MACA/mcTriton",
+      "version": "3.0",
+      "commit": "7dd407c26568fceaca44cb894138e5202d369805",
+      "documents": 371
+    },
+    {
+      "repository": "MetaX-MACA/mccl-nccl",
+      "version": "2.20.5",
+      "commit": "157bc6bb8bc7dd74fb560cd66932356e927e2834",
+      "documents": 238
+    },
+    {
+      "repository": "MetaX-MACA/mccl_tests",
+      "version": "main",
+      "commit": "1e44d4af1b177f2ab9e23bdd0b393ad757d08f4e",
+      "documents": 35
+    },
+    {
+      "repository": "MetaX-MACA/mcoplib",
+      "version": "main",
+      "commit": "1089e4bafb1096cc1faf41dc683b2d35ca577a15",
+      "documents": 1729
+    },
+    {
+      "repository": "MetaX-MACA/op_optimization",
+      "version": "master",
+      "commit": "67875de0d2f159f7380ad6471a34bf8c6551a8f1",
+      "documents": 5
+    },
+    {
+      "repository": "MetaX-MACA/sglang",
+      "version": "release/v0.5.21",
+      "commit": "2b6d2c59fe1e171947764dd34172a01a7aeec6ec",
+      "documents": 9738
+    },
+    {
+      "repository": "MetaX-MACA/vLLM-metax",
+      "version": "master",
+      "commit": "4ccfa7a6c003157265779847380e6d4aac7e0db4",
+      "documents": 1425
+    },
+    {
+      "repository": "bytedance-seed/triton-distributed",
+      "version": "main",
+      "commit": "7908e4ea9010bb2238f9f05b28c904fd4b71c60a",
+      "documents": 832
+    },
+    {
+      "repository": "tile-ai/tilelang-metax",
+      "version": "dev",
+      "commit": "90d49f353ec88bd0d346474f143003d865dd3b79",
+      "documents": 1965
+    }
+  ],
+  "github_content_kinds": [
+    {
+      "repository": "MetaX-MACA/MXDeepEP",
+      "kind": "code",
+      "documents": 55
+    },
+    {
+      "repository": "MetaX-MACA/MXDeepEP",
+      "kind": "documentation",
+      "documents": 3
+    },
+    {
+      "repository": "MetaX-MACA/McFlashInfer",
+      "kind": "code",
+      "documents": 197
+    },
+    {
+      "repository": "MetaX-MACA/McFlashInfer",
+      "kind": "documentation",
+      "documents": 1
+    },
+    {
+      "repository": "MetaX-MACA/Onnxruntime",
+      "kind": "code",
+      "documents": 9
+    },
+    {
+      "repository": "MetaX-MACA/Onnxruntime",
+      "kind": "documentation",
+      "documents": 1
+    },
+    {
+      "repository": "MetaX-MACA/TileKernels-Metax",
+      "kind": "code",
+      "documents": 123
+    },
+    {
+      "repository": "MetaX-MACA/TileKernels-Metax",
+      "kind": "documentation",
+      "documents": 1
+    },
+    {
+      "repository": "MetaX-MACA/TileOPs-Metax",
+      "kind": "code",
+      "documents": 613
+    },
+    {
+      "repository": "MetaX-MACA/TileOPs-Metax",
+      "kind": "documentation",
+      "documents": 25
+    },
+    {
+      "repository": "MetaX-MACA/flashattn",
+      "kind": "code",
+      "documents": 1054
+    },
+    {
+      "repository": "MetaX-MACA/flashattn",
+      "kind": "documentation",
+      "documents": 14
+    },
+    {
+      "repository": "MetaX-MACA/gpuBenchmark",
+      "kind": "code",
+      "documents": 51
+    },
+    {
+      "repository": "MetaX-MACA/gpuBenchmark",
+      "kind": "documentation",
+      "documents": 5
+    },
+    {
+      "repository": "MetaX-MACA/maca-samples",
+      "kind": "code",
+      "documents": 52
+    },
+    {
+      "repository": "MetaX-MACA/maca-samples",
+      "kind": "documentation",
+      "documents": 18
+    },
+    {
+      "repository": "MetaX-MACA/mcTlass",
+      "kind": "code",
+      "documents": 397
+    },
+    {
+      "repository": "MetaX-MACA/mcTlass",
+      "kind": "documentation",
+      "documents": 1
+    },
+    {
+      "repository": "MetaX-MACA/mcTriton",
+      "kind": "code",
+      "documents": 349
+    },
+    {
+      "repository": "MetaX-MACA/mcTriton",
+      "kind": "documentation",
+      "documents": 22
+    },
+    {
+      "repository": "MetaX-MACA/mccl-nccl",
+      "kind": "code",
+      "documents": 236
+    },
+    {
+      "repository": "MetaX-MACA/mccl-nccl",
+      "kind": "documentation",
+      "documents": 2
+    },
+    {
+      "repository": "MetaX-MACA/mccl_tests",
+      "kind": "code",
+      "documents": 33
+    },
+    {
+      "repository": "MetaX-MACA/mccl_tests",
+      "kind": "documentation",
+      "documents": 2
+    },
+    {
+      "repository": "MetaX-MACA/mcoplib",
+      "kind": "code",
+      "documents": 1643
+    },
+    {
+      "repository": "MetaX-MACA/mcoplib",
+      "kind": "documentation",
+      "documents": 86
+    },
+    {
+      "repository": "MetaX-MACA/op_optimization",
+      "kind": "documentation",
+      "documents": 5
+    },
+    {
+      "repository": "MetaX-MACA/sglang",
+      "kind": "code",
+      "documents": 9210
+    },
+    {
+      "repository": "MetaX-MACA/sglang",
+      "kind": "documentation",
+      "documents": 528
+    },
+    {
+      "repository": "MetaX-MACA/vLLM-metax",
+      "kind": "code",
+      "documents": 1345
+    },
+    {
+      "repository": "MetaX-MACA/vLLM-metax",
+      "kind": "documentation",
+      "documents": 80
+    },
+    {
+      "repository": "bytedance-seed/triton-distributed",
+      "kind": "code",
+      "documents": 745
+    },
+    {
+      "repository": "bytedance-seed/triton-distributed",
+      "kind": "documentation",
+      "documents": 87
+    },
+    {
+      "repository": "tile-ai/tilelang-metax",
+      "kind": "code",
+      "documents": 1868
+    },
+    {
+      "repository": "tile-ai/tilelang-metax",
+      "kind": "documentation",
+      "documents": 97
+    }
+  ],
+  "official_series": [
+    {
+      "series": null,
+      "version": "",
+      "documents": 35
+    },
+    {
+      "series": null,
+      "version": "4.0.1",
+      "documents": 11
+    },
+    {
+      "series": "AI推理用户手册",
+      "version": "3.8.0.x",
+      "documents": 16
+    },
+    {
+      "series": "MCCL编程指南",
+      "version": "3.9.1",
+      "documents": 6
+    },
+    {
+      "series": "MXMACA C++编程指南",
+      "version": "3.9.1",
+      "documents": 5
+    },
+    {
+      "series": "MXMACA 编译器内建函数编程指南",
+      "version": "3.9.1",
+      "documents": 4
+    },
+    {
+      "series": "MXMACA运行时API参考",
+      "version": "3.9.1",
+      "documents": 5
+    },
+    {
+      "series": "mcBLAS API参考",
+      "version": "3.9.1",
+      "documents": 3
+    },
+    {
+      "series": "mcProfiler使用手册",
+      "version": "3.9.1",
+      "documents": 3
+    },
+    {
+      "series": "mcTracer使用手册",
+      "version": "3.9.1",
+      "documents": 4
+    },
+    {
+      "series": "mcTriton用户指南",
+      "version": "3.9.1",
+      "documents": 5
+    },
+    {
+      "series": "mxcc编译器用户指南",
+      "version": "3.9.1",
+      "documents": 7
+    },
+    {
+      "series": "快速上手指南",
+      "version": "3.9.1",
+      "documents": 6
+    },
+    {
+      "series": "运行时API编程指南",
+      "version": "3.9.1",
+      "documents": 6
+    }
+  ],
+  "public_availability_checks": [
+    {
+      "url": "https://developer.metax-tech.com/api/client/document/series/filter/?keyword=mcBLASLt&page=1&page_size=100",
+      "code": 0,
+      "records": 0
+    },
+    {
+      "url": "https://developer.metax-tech.com/api/client/document/file/search/?file_name=mcBLASLt",
+      "code": 0,
+      "records": 0
+    },
+    {
+      "url": "https://developer.metax-tech.com/api/client/document/file/search/?file_name=MXSHMEM",
+      "code": 0,
+      "records": 0
+    }
+  ],
+  "coverage_limits": {
+    "MXSHMEM": "Public device interfaces, Python/C++ bindings and ring put example indexed from Triton-distributed. Full underlying implementation and standalone SDK API manual not located in public sources.",
+    "mcBLASLt": "Ten files from MetaX Onnxruntime cover GEMM/Matmul callers, descriptors, layouts, handles and build dependencies. The ordinary mcBLAS API reference is also indexed. Standalone mcBLASLt GEMM + Communication API documentation, SDK headers and vendor examples not located in the public catalog."
+  },
+  "acceptance": {
+    "offline_tests": {
+      "passed": 81,
+      "failed": 0
+    },
+    "sync": {
+      "failed": 0,
+      "partial": false,
+      "truncated": false,
+      "indexed": 1176
+    },
+    "sqlite_integrity": "ok",
+    "fts_integrity": "ok",
+    "stdio_queries": 28,
+    "operator_guide_topics": 18,
+    "coverage_groups": 45,
+    "new_source_queries": [
+      {
+        "query": "allgather_gemm",
+        "source": "github",
+        "repository": "bytedance-seed/triton-distributed",
+        "id": "github:5c7e9101055ac2fd45545c7feafff69e188414ec165fbcc842fbfe3392763baf",
+        "path": "python/triton_dist/kernels/metax/allgather_gemm.py",
+        "url": "https://github.com/bytedance-seed/triton-distributed/blob/7908e4ea9010bb2238f9f05b28c904fd4b71c60a/python/triton_dist/kernels/metax/allgather_gemm.py",
+        "revision": "7908e4ea9010bb2238f9f05b28c904fd4b71c60a",
+        "version": "main",
+        "content_kind": "code",
+        "read_ok": true
+      },
+      {
+        "query": "ConvertMETAXDistributedToLLVM",
+        "source": "github",
+        "repository": "bytedance-seed/triton-distributed",
+        "id": "github:34c7834d796e10dc5310315487fb35b5a2a4cf714dd58110cdccc677291e094a",
+        "path": "lib/Conversion/TritonDistributedToLLVM/METAX/ConvertMETAXDistributedToLLVM.cpp",
+        "url": "https://github.com/bytedance-seed/triton-distributed/blob/7908e4ea9010bb2238f9f05b28c904fd4b71c60a/lib/Conversion/TritonDistributedToLLVM/METAX/ConvertMETAXDistributedToLLVM.cpp",
+        "revision": "7908e4ea9010bb2238f9f05b28c904fd4b71c60a",
+        "version": "main",
+        "content_kind": "code",
+        "read_ok": true
+      },
+      {
+        "query": "mxshmem_signal_wait_until",
+        "source": "github",
+        "repository": "bytedance-seed/triton-distributed",
+        "id": "github:1e8b750c0aa835f0ffdf0156751f13872afb8ac0391275ed38a2804f8158da45",
+        "path": "python/triton_dist/language/extra/maca/libmxshmem_device.py",
+        "url": "https://github.com/bytedance-seed/triton-distributed/blob/7908e4ea9010bb2238f9f05b28c904fd4b71c60a/python/triton_dist/language/extra/maca/libmxshmem_device.py",
+        "revision": "7908e4ea9010bb2238f9f05b28c904fd4b71c60a",
+        "version": "main",
+        "content_kind": "code",
+        "read_ok": true
+      },
+      {
+        "query": "run_ring_put",
+        "source": "github",
+        "repository": "bytedance-seed/triton-distributed",
+        "id": "github:73bbd512f555e2d01521e5066bf5b8058ebbefd049e4114dcd896733df694d62",
+        "path": "shmem/mxshmem_bind/pymxshmem/example/run_ring_put.py",
+        "url": "https://github.com/bytedance-seed/triton-distributed/blob/7908e4ea9010bb2238f9f05b28c904fd4b71c60a/shmem/mxshmem_bind/pymxshmem/example/run_ring_put.py",
+        "revision": "7908e4ea9010bb2238f9f05b28c904fd4b71c60a",
+        "version": "main",
+        "content_kind": "code",
+        "read_ok": true
+      },
+      {
+        "query": "mcclAllReduce",
+        "source": "github",
+        "repository": "MetaX-MACA/mccl-nccl",
+        "id": "github:2e351d117bd6c2f7aa36e1a0e46d73e1cf3184bffba0727da1d6dbefe8e76643",
+        "path": "src/mxccl.h.in",
+        "url": "https://github.com/MetaX-MACA/mccl-nccl/blob/157bc6bb8bc7dd74fb560cd66932356e927e2834/src/mxccl.h.in",
+        "revision": "157bc6bb8bc7dd74fb560cd66932356e927e2834",
+        "version": "2.20.5",
+        "content_kind": "code",
+        "read_ok": true
+      },
+      {
+        "query": "mcclBuildRings",
+        "source": "github",
+        "repository": "MetaX-MACA/mccl-nccl",
+        "id": "github:48477a1f51910e8ac9af1b4c352a647f9fa3478f86741acab19e93e49ff41bf6",
+        "path": "src/graph/connect.cc",
+        "url": "https://github.com/MetaX-MACA/mccl-nccl/blob/157bc6bb8bc7dd74fb560cd66932356e927e2834/src/graph/connect.cc",
+        "revision": "157bc6bb8bc7dd74fb560cd66932356e927e2834",
+        "version": "2.20.5",
+        "content_kind": "code",
+        "read_ok": true
+      },
+      {
+        "query": "AllReduce",
+        "source": "github",
+        "repository": "MetaX-MACA/mccl_tests",
+        "id": "github:6f2eeb36c22bfad0e74af74413911411bb64ff0c81ac43362638584f6ae26548",
+        "path": "src/all_reduce.cu",
+        "url": "https://github.com/MetaX-MACA/mccl_tests/blob/1e44d4af1b177f2ab9e23bdd0b393ad757d08f4e/src/all_reduce.cu",
+        "revision": "1e44d4af1b177f2ab9e23bdd0b393ad757d08f4e",
+        "version": "main",
+        "content_kind": "code",
+        "read_ok": true
+      },
+      {
+        "query": "intranode",
+        "source": "github",
+        "repository": "MetaX-MACA/MXDeepEP",
+        "id": "github:d0ac2ee7eea3c173954af414e6a13f00e720077da53388cb4285d08d3f8459ca",
+        "path": "csrc/kernels/intranode.cu",
+        "url": "https://github.com/MetaX-MACA/MXDeepEP/blob/5ce9cce6efc06f2596b8f395e5cae3c78494699a/csrc/kernels/intranode.cu",
+        "revision": "5ce9cce6efc06f2596b8f395e5cae3c78494699a",
+        "version": "main",
+        "content_kind": "code",
+        "read_ok": true
+      },
+      {
+        "query": "dispatch",
+        "source": "github",
+        "repository": "MetaX-MACA/MXDeepEP",
+        "id": "github:e706574704f44fc0c7c0f050c9d1d6e69ac6dd99a9513f1615cb6b80ff30dc66",
+        "path": "deep_ep/buffer.py",
+        "url": "https://github.com/MetaX-MACA/MXDeepEP/blob/5ce9cce6efc06f2596b8f395e5cae3c78494699a/deep_ep/buffer.py",
+        "revision": "5ce9cce6efc06f2596b8f395e5cae3c78494699a",
+        "version": "main",
+        "content_kind": "code",
+        "read_ok": true
+      },
+      {
+        "query": "mcblasGemmEx",
+        "source": "official",
+        "repository": null,
+        "id": "official:789b4fdb00a2746c6c361c244130a36253e6a92bb50be2f36e43f069201f6b8e",
+        "path": "/api/client/document/preview/API%20%E5%8F%82%E8%80%83/mcBLAS%20API%E5%8F%82%E8%80%83/MXC500/3.9.1/split_files/%E4%BD%BF%E7%94%A8mcblas_api.html",
+        "url": "https://developer.metax-tech.com/api/client/document/preview/API%20%E5%8F%82%E8%80%83/mcBLAS%20API%E5%8F%82%E8%80%83/MXC500/3.9.1/split_files/%E4%BD%BF%E7%94%A8mcblas_api.html",
+        "revision": "",
+        "version": "3.9.1",
+        "content_kind": null,
+        "read_ok": true
+      },
+      {
+        "query": "mcblasLtMatmul",
+        "source": "github",
+        "repository": "MetaX-MACA/Onnxruntime",
+        "id": "github:6bf28dd53cc9325b9a30f4cf4859731cdd8db678b2cbe7ee6c32b57b1a437939",
+        "path": "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/onnx/gemm_kernel.cc",
+        "url": "https://github.com/MetaX-MACA/Onnxruntime/blob/1acd81ff2d0179530d6428361cdba6429a9df62e/cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/onnx/gemm_kernel.cc",
+        "revision": "1acd81ff2d0179530d6428361cdba6429a9df62e",
+        "version": "2.25.2",
+        "content_kind": "code",
+        "read_ok": true
+      }
+    ],
+    "live_mcp_sources_confirmed": true,
+    "live_mcp_new_sources_confirmed": true,
+    "live_mcp_readbacks": [
+      {
+        "name": "Triton-distributed",
+        "path": "python/triton_dist/kernels/metax/allgather_gemm.py",
+        "revision": "7908e4ea9010bb2238f9f05b28c904fd4b71c60a",
+        "fetched_at": "2026-11-09T09:54:44+00:00",
+        "read_ok": true
+      },
+      {
+        "name": "MCCL",
+        "path": "src/graph/connect.cc",
+        "revision": "157bc6bb8bc7dd74fb560cd66932356e927e2834",
+        "fetched_at": "2026-11-09T09:54:50+00:00",
+        "read_ok": true
+      },
+      {
+        "name": "MXDeepEP",
+        "path": "csrc/kernels/internode.cu",
+        "revision": "5ce9cce6efc06f2596b8f395e5cae3c78494699a",
+        "fetched_at": "2026-11-09T09:54:54+00:00",
+        "read_ok": true
+      },
+      {
+        "name": "MXSHMEM",
+        "path": "python/triton_dist/language/extra/maca/libmxshmem_device.py",
+        "revision": "7908e4ea9010bb2238f9f05b28c904fd4b71c60a",
+        "fetched_at": "2026-11-09T09:54:44+00:00",
+        "read_ok": true
+      },
+      {
+        "name": "mcBLASLt",
+        "path": "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/onnx/gemm_kernel.cc",
+        "revision": "1acd81ff2d0179530d6428361cdba6429a9df62e",
+        "fetched_at": "2026-11-09T09:56:17+00:00",
+        "read_ok": true
+      }
+    ],
+    "live_mcp_guide": {
+      "topic": "comm-fusion",
+      "missing_references": [],
+      "read_order": 13
+    }
+  },
+  "weekly_automation": {
+    "id": "mcp",
+    "name": "每周更新沐曦资料 MCP",
+    "status": "ACTIVE",
+    "schedule": "Monday 10:00 Asia/Shanghai",
+    "scope_updated": true,
+    "new_public_interface_discovery_requested": true
+  },
+  "recovery": {
+    "failed_attempt": ".data/refresh/20261109T095323.779153Z/result.json",
+    "rate_limited_full_run": ".data/refresh/20261109T095419.384969Z/result.json",
+    "details": [
+      "Initial crawl stopped on renamed official builtin manual series. Updated exact series name from MXMACA 编译器内建函数编程指南 to MXMACA编译器内建函数编程指南 and collected the new sources in a fresh database. The subsequent full refresh reached GitHub API limits on existing repositories. After stopping that run, copied the serving baseline and added only the completely fetched five new repositories and mcBLAS manual, then ran the original SQLite/FTS/stdio/operator-guide publication gates. Existing-source versions and fetch times remain unchanged."
+    ]
+  },
+  "reports": {
+    "run_directory": ".data/refresh/20261109T100922.608090Z",
+    "result": ".data/refresh/20261109T100922.608090Z/result.json",
+    "sync": ".data/refresh/20261109T100922.608090Z/sync.json",
+    "verify": ".data/refresh/20261109T100922.608090Z/verify.json",
+    "previous_database": ".data/index.previous.sqlite3",
+    "supplement": ".data/refresh/20261109T100922.608090Z/supplement.json",
+    "public_discovery": ".data/refresh/20261109T095419.384969Z/discovery",
+    "supplement_publisher": ".data/refresh/20261109T100922.608090Z/publish_supplement.py"
+  }
+}

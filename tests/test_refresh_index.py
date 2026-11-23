@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import sqlite3
 from pathlib import Path
 
@@ -36,6 +37,24 @@ def refresh(tmp_path, monkeypatch):
     monkeypatch.setattr(module, "LIVE", data / "index.sqlite3")
     seed(module.LIVE, "old")
     return module
+
+
+def test_run_logged_uses_repository_source_for_child_processes(refresh, monkeypatch, tmp_path):
+    monkeypatch.setenv("PYTHONPATH", "/existing/python/path")
+    captured = {}
+
+    def fake_run(command, **kwargs):
+        captured.update(kwargs)
+        return refresh.subprocess.CompletedProcess(command, 0)
+
+    monkeypatch.setattr(refresh.subprocess, "run", fake_run)
+    output = tmp_path / "stdout.json"
+    errors = tmp_path / "stderr.log"
+
+    assert refresh.run_logged(["child-command"], output, errors) == 0
+    assert captured["env"]["PYTHONPATH"].split(os.pathsep) == [
+        str(refresh.ROOT / "src"), "/existing/python/path"
+    ]
 
 
 @pytest.mark.parametrize("failure", ["partial", "verification"])
@@ -111,6 +130,31 @@ def test_release_discovery_uses_numeric_stable_versions(refresh, monkeypatch, tm
     assert result["github"]["repository_refs"]["MetaX-MACA/sglang"] == "release/v0.5.20"
     # The checked-in source selection remains unchanged; runs keep snapshots.
     assert json.loads(config.read_text())["github"]["repository_refs"]["MetaX-MACA/sglang"] == "release/v0.5.14"
+
+
+def test_new_repository_refresh_skips_indexed_repositories(refresh, monkeypatch, tmp_path):
+    store = Store(refresh.LIVE)
+    store.upsert(Document(id='existing', source='github', title='existing', text='original',
+                          repository='MetaX-MACA/already', url='https://github.com/MetaX-MACA/already'))
+    store.close()
+    (tmp_path/'examples/sources.json').write_text(json.dumps({'official': {}, 'github': {'repositories': ['ALREADY', 'new']}}))
+    selections = []
+    def run(command, output, errors):
+        if '--config' in command:
+            config = json.loads(Path(command[-1]).read_text())
+            assert 'official' not in config
+            selections.append(config['github']['repositories'])
+            seed(Path(command[2]), 'added')
+            output.write_text('{"failed":0,"partial":false}')
+        else:
+            output.write_text('{}')
+        return 0
+    monkeypatch.setattr(refresh, 'run_logged', run)
+    assert refresh.refresh(new_repositories_only=True) == 0
+    assert selections == [['new']]
+    store = Store(refresh.LIVE, readonly=True)
+    assert store.get_document('old') and store.get_document('existing') and store.get_document('added')
+    store.close()
 
 
 def seed_all_sources(path):
@@ -281,3 +325,78 @@ def test_retry_publishes_only_the_latest_snapshot(
                 assert store.get_section(doc["id"], "prior-batch")
     finally:
         store.close()
+
+
+@pytest.mark.parametrize('change_config', [False, True])
+def test_resume_reuses_complete_batches_and_discards_failed_attempt(refresh, monkeypatch, tmp_path, change_config):
+    config = tmp_path/'examples/sources.json'
+    config.write_text(json.dumps({'github':{'repositories':['a','b']}}))
+    monkeypatch.setenv(refresh.GITHUB_BATCH_ENV,'1')
+    calls = []
+    def command(args, output, errors):
+        if '--config' not in args:
+            store = Store(args[-1],readonly=True)
+            try:
+                assert store.get_document('a')['revision'] == 'first-complete'
+                assert store.get_document('stale') is None
+                assert not store.search('stale_snapshot')
+            finally:
+                store.close()
+            output.write_text('{}')
+            return 0
+        name = json.loads(Path(args[-1]).read_text())['github']['repositories'][0]
+        calls.append(name)
+        failing = name == 'b' and calls.count('b') == 1
+        store = Store(args[2])
+        try:
+            store.upsert(Document(id='stale' if failing else name,source='github',title=name,
+                text='# Stale\nstale_snapshot' if failing else '# Complete\nsource',
+                repository=f'MetaX-MACA/{name}',revision='first-complete' if name=='a' else 'retry',
+                url=f'https://github.com/MetaX-MACA/{name}'))
+        finally:
+            store.close()
+        output.write_text(json.dumps({'failed':int(failing),'partial':failing,
+            'errors':[{'url':'https://api.github.com/repos/MetaX-MACA/b','error':'HTTP 500'}] if failing else []}))
+        return int(failing)
+    monkeypatch.setattr(refresh,'run_logged',command)
+    assert refresh.refresh() == 1
+    directory = next((refresh.DATA/'refresh').iterdir())
+    assert (directory/'resume.sqlite3').is_file()
+    assert calls == ['a','b']
+    if change_config:
+        config.write_text(json.dumps({'github':{'repositories':['a','b','c']}}))
+        assert refresh.refresh(resume_directory=directory) == 1
+        assert calls == ['a','b']
+        store = Store(refresh.LIVE,readonly=True)
+        try:
+            assert store.get_document('old')
+        finally:
+            store.close()
+    else:
+        assert refresh.refresh(resume_directory=directory) == 0
+        assert calls == ['a','b','b']
+
+
+def test_resume_after_verification_failure_keeps_complete_candidate(refresh,monkeypatch,tmp_path):
+    (tmp_path/'examples/sources.json').write_text(json.dumps({'github':{'repositories':['a','b']}}))
+    monkeypatch.setenv(refresh.GITHUB_BATCH_ENV,'1')
+    calls=[]
+    def command(args,output,errors):
+        if '--config' in args:
+            name=json.loads(Path(args[-1]).read_text())['github']['repositories'][0]
+            calls.append(name);store=Store(args[2])
+            try:store.upsert(Document(id=name,source='github',title=name,text='complete source',repository=f'MetaX-MACA/{name}',url=f'https://github.com/MetaX-MACA/{name}'))
+            finally:store.close()
+            output.write_text('{"failed":0,"partial":false}');return 0
+        calls.append('verify');store=Store(args[-1],readonly=True)
+        try:
+            assert store.get_document('a') and store.get_document('b')
+        finally:store.close()
+        output.write_text('{}');return int(calls.count('verify')==1)
+    monkeypatch.setattr(refresh,'run_logged',command)
+    assert refresh.refresh()==1
+    directory=next((refresh.DATA/'refresh').iterdir())
+    # An older failed-batch checkpoint must not replace a completed crawl.
+    seed(directory/'resume.sqlite3','obsolete-checkpoint')
+    assert refresh.refresh(resume_directory=directory)==0
+    assert calls==['a','b','verify','verify']

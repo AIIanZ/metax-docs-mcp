@@ -1,0 +1,1870 @@
+{
+  "date": "2026-11-09",
+  "result": "published",
+  "mode": "add_new_repositories",
+  "started_at": "20261109T122441.189898Z",
+  "finished_at": "2026-11-09T13:28:03.000037+00:00",
+  "source_config": "examples/sources.json",
+  "scope": {
+    "organization": "MetaX-MACA",
+    "public_repositories": 66,
+    "added_repositories": 50,
+    "skipped_existing_org_repositories": 16,
+    "retained_external_repositories": 2,
+    "configured_total": 68,
+    "github_client": "gh",
+    "github_transport": "archive",
+    "gh_blob_concurrency": 4,
+    "repository_transports": {
+      "MetaX-MACA/Embodied_AI_Simulation": "api"
+    },
+    "repository_include_globs": {
+      "MetaX-MACA/Onnxruntime": [
+        "README*",
+        "cmake/external/ppl.nn/cmake/cuda.cmake",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/cuda_device.*",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernel.h",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/onnx/gemm_kernel.*",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/onnx/matmul_kernel.*",
+        "cmake/external/ppl.nn/src/ppl/nn/engines/cuda/kernels/pmx/batch_gemm_kernel.cc"
+      ]
+    },
+    "repository_exclude_globs": {
+      "MetaX-MACA/MXDeepEP": [
+        "third-party/include/**"
+      ],
+      "MetaX-MACA/vLLM-metax": [
+        "tools/models/Qwen3.8-Flash-Next-dummy-3layers/merges.txt",
+        "tools/models/Qwen3.8-Flash-Next-dummy-3layers/vocab.json"
+      ],
+      "MetaX-MACA/McFlashInfer": [
+        "3rdparty/**"
+      ],
+      "MetaX-MACA/flashattn": [
+        "csrc/mctlass/**"
+      ],
+      "MetaX-MACA/mcTriton": [
+        "third_party/amd/**",
+        "third_party/nvidia/**",
+        "third_party/json/**",
+        "third_party/pybind11/**",
+        "third_party/proton/**"
+      ],
+      "MetaX-MACA/modelzoo": [
+        "**/data/instances_val2017.json"
+      ],
+      "MetaX-MACA/ppl.llm.serving": [
+        "tools/samples_8192.json"
+      ]
+    },
+    "excluded_data_files": [
+      "MetaX-MACA/modelzoo/openmodels/detection/data/instances_val2017.json",
+      "MetaX-MACA/modelzoo/paddlepaddle/vision/detection/data/instances_val2017.json",
+      "MetaX-MACA/ppl.llm.serving/tools/samples_8192.json"
+    ],
+    "out_of_scope": [
+      "binaries",
+      "symbolic link pointers",
+      "submodule contents",
+      "PDF",
+      "notebooks",
+      "unsupported extensions"
+    ]
+  },
+  "counts": {
+    "before": {
+      "docker": 14,
+      "github": 18958,
+      "official": 116
+    },
+    "after": {
+      "docker": 14,
+      "github": 55328,
+      "official": 116
+    },
+    "total": 55458,
+    "new_source_files": 36320,
+    "new_repository_metadata": 50
+  },
+  "document_changes": {
+    "added": 36370,
+    "removed": 0,
+    "updated": 0
+  },
+  "validation": {
+    "offline_tests": 120,
+    "sqlite_integrity": "ok",
+    "fts_integrity": "ok",
+    "symbol_queries": 28,
+    "repository_checks": 68,
+    "operator_guide_topics": 18,
+    "failed": 0,
+    "partial": false,
+    "truncated": false,
+    "connected_mcp": {
+      "checked_at": "2026-11-09 13:29:28 UTC",
+      "total_documents": 55458,
+      "by_source": {
+        "official": 116,
+        "github": 55328,
+        "docker": 14
+      },
+      "github_repositories": 68,
+      "organization_repositories": 66,
+      "readbacks": [
+        {
+          "name": "cython",
+          "id": "github:9b8b5e41ab8a57cb348a862c2b0d2fa7c979e56b219821c0f6161bc6db0196b7",
+          "repository": "MetaX-MACA/mcpy",
+          "path": "cupy_backends/cuda/libs/cusparse.pyx",
+          "url": "https://github.com/MetaX-MACA/mcpy/blob/c273c920f2884d4defd18df42f69e0e03ffe214c/cupy_backends/cuda/libs/cusparse.pyx",
+          "revision": "c273c920f2884d4defd18df42f69e0e03ffe214c",
+          "content_kind": "code",
+          "read_characters": 1000,
+          "read_ok": true
+        },
+        {
+          "name": "mooncake",
+          "id": "github:d7464c88821e3f9f1ac635c75f442f437d41b194ff3ecec5843cb3c237fe9cea",
+          "repository": "MetaX-MACA/Mooncake",
+          "path": "mooncake-transfer-engine/tent/src/runtime/transfer_engine_impl.cpp",
+          "url": "https://github.com/MetaX-MACA/Mooncake/blob/3e626f202eeeabf6ee542f43f07e2e9b1f43068b/mooncake-transfer-engine/tent/src/runtime/transfer_engine_impl.cpp",
+          "revision": "3e626f202eeeabf6ee542f43f07e2e9b1f43068b",
+          "content_kind": "code",
+          "read_characters": 1000,
+          "read_ok": true
+        },
+        {
+          "name": "pytorch",
+          "id": "github:2f3de909be0b12b032419b002e65fa5dfa92e6a49bcb697c058758b6cff856b2",
+          "repository": "MetaX-MACA/mcPytorch",
+          "path": "setup.py",
+          "url": "https://github.com/MetaX-MACA/mcPytorch/blob/b3db5eed6a6e330133cd3d4b173f8da392aa6bcb/setup.py",
+          "revision": "b3db5eed6a6e330133cd3d4b173f8da392aa6bcb",
+          "content_kind": "code",
+          "read_characters": 1000,
+          "read_ok": true
+        },
+        {
+          "name": "empty",
+          "id": "github:578d6bb0c14047a72995dd36f0b1d1d5c85c641a6b3b72d1990c278bb440870e",
+          "repository": "MetaX-MACA/MetaX-MACA.github.io",
+          "content_kind": "repository_metadata",
+          "repository_status": "empty",
+          "indexed_files": 0,
+          "read_ok": true
+        }
+      ],
+      "exact_filename_check": {
+        "query": "MANIFEST.in",
+        "repository": "MetaX-MACA/TileOPs-Metax",
+        "first_id": "github:40ac30aa0dc5fe9a8538e9853664bf587729b4f360470abc24203d18af135b16",
+        "first_title": "MANIFEST.in",
+        "passed": true
+      }
+    },
+    "transport_recovery": {
+      "repository": "MetaX-MACA/Embodied_AI_Simulation",
+      "revision": "fd1c3618c428dba546d0819c6e5cd96412b6dc92",
+      "selected_files": 401,
+      "verified_file_inventory": true,
+      "repaired_files": [
+        {
+          "path": "FrankPanda/data/assets/mug_asset.xml",
+          "sha": "04889c52554a4d560f358a34416abcd8907bb7ed",
+          "bytes": 1340,
+          "revision": "fd1c3618c428dba546d0819c6e5cd96412b6dc92",
+          "git_blob_verified": true
+        },
+        {
+          "path": "FrankPanda/data/sample_kitchen_tasks/task_Heat_Food_Inside_Microwave/grasp_the_microwave_temperature_knob.yaml",
+          "sha": "e356fe5d02d58183b19eed7d8455b028d1a2d1c0",
+          "bytes": 105,
+          "revision": "fd1c3618c428dba546d0819c6e5cd96412b6dc92",
+          "git_blob_verified": true
+        },
+        {
+          "path": "FrankPanda/data/sample_kitchen_tasks/task_Open_Slide_Cabinet_Door/scene/assets/dataset/mug/body_and_joint.txt",
+          "sha": "a4891816237ca27a882dd3a51fb2bd3946fe8747",
+          "bytes": 32,
+          "revision": "fd1c3618c428dba546d0819c6e5cd96412b6dc92",
+          "git_blob_verified": true
+        },
+        {
+          "path": "FrankPanda/data/sample_kitchen_tasks/task_Open_Slide_Cabinet_Door/scene/third_party/franka_emika_panda/scene.xml",
+          "sha": "173d900e60b8a242e1cba19b2115bf8f5edccedd",
+          "bytes": 874,
+          "revision": "fd1c3618c428dba546d0819c6e5cd96412b6dc92",
+          "git_blob_verified": true
+        }
+      ]
+    },
+    "repository_queries": "Source code: indexed path; documentation: indexed document title; empty repositories: repository name. Each result must include the selected file ID and pass a readback."
+  },
+  "weekly_automation": {
+    "id": "mcp",
+    "status": "ACTIVE",
+    "timezone": "Asia/Shanghai",
+    "rrule": "FREQ=WEEKLY;BYDAY=MO;BYHOUR=10;BYMINUTE=0;BYSECOND=0",
+    "github_client": "gh",
+    "mode": "full_refresh",
+    "organization_inventory": "gh api --paginate 'orgs/MetaX-MACA/repos?type=public&per_page=100'",
+    "auto_merge": false
+  },
+  "repositories": [
+    {
+      "repository": "bytedance-seed/triton-distributed",
+      "added": false,
+      "version": "main",
+      "revision": "7908e4ea9010bb2238f9f05b28c904fd4b71c60a",
+      "files": 832,
+      "content_kinds": {
+        "code": 745,
+        "documentation": 87
+      },
+      "status": "available",
+      "verification": {
+        "repository": "bytedance-seed/triton-distributed",
+        "id": "github:01fa28437d406494a5e4d8fb4cb887c638d0ca38cc18ff7dc0cf8169fa32008f",
+        "path": "build_scm.sh",
+        "revision": "7908e4ea9010bb2238f9f05b28c904fd4b71c60a",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "build_scm.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/3FS",
+      "added": true,
+      "version": "main",
+      "revision": "c450ee0cf7b422c53337d585a314c7a6b66405ff",
+      "files": 1221,
+      "content_kinds": {
+        "code": 1208,
+        "documentation": 13,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/3FS",
+        "id": "github:7db159bade48b010c349b6d855b88e6ee3f7182ad873a33000fb9bb671e76c75",
+        "path": "setup.py",
+        "revision": "c450ee0cf7b422c53337d585a314c7a6b66405ff",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "setup.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/AI4S-Framework",
+      "added": true,
+      "version": "main",
+      "revision": "765f9ee3735a225681bd2fc938807a42865c3246",
+      "files": 13,
+      "content_kinds": {
+        "code": 6,
+        "documentation": 7,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/AI4S-Framework",
+        "id": "github:0976dd3aef6291a5133dd73a67be92d799813eb9c4c918f1c5a5e1cf155f59b3",
+        "path": "PINA/Dockerfile",
+        "revision": "765f9ee3735a225681bd2fc938807a42865c3246",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "PINA/Dockerfile",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/AIModels",
+      "added": true,
+      "version": "master",
+      "revision": "e0675295f7b6c8f77f9f015bdf83ba59263b2b00",
+      "files": 24,
+      "content_kinds": {
+        "code": 5,
+        "documentation": 19,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/AIModels",
+        "id": "github:09e7c41c7da8bed92f30dc6f9b57d7197bc3a0f0cc5d12565e64ca34667522ed",
+        "path": "Kimi/sglang_scripts/launch_servers.sh",
+        "revision": "e0675295f7b6c8f77f9f015bdf83ba59263b2b00",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "Kimi/sglang_scripts/launch_servers.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/Autonomous_Driving_Simulation",
+      "added": true,
+      "version": "master",
+      "revision": "700c4c6f2a19f3e3ece7095fe3f7f9ca0577813f",
+      "files": 47,
+      "content_kinds": {
+        "code": 31,
+        "documentation": 16,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/Autonomous_Driving_Simulation",
+        "id": "github:d61be4536667eacd61eeea0e6899ef30b78a211ddd47d1b4caba78d0266eb6ba",
+        "path": "SceneEdit/run_qwen.sh",
+        "revision": "700c4c6f2a19f3e3ece7095fe3f7f9ca0577813f",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "SceneEdit/run_qwen.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/DeepEP",
+      "added": true,
+      "version": "main",
+      "revision": "3885404ffb31a3d9cbd238aa1a366408881bb069",
+      "files": 28,
+      "content_kinds": {
+        "code": 26,
+        "documentation": 2,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/DeepEP",
+        "id": "github:ca165a7f07cd5a64728499f51402fd31e03a830be2404ded57b2e3c068fff5da",
+        "path": "setup.py",
+        "revision": "3885404ffb31a3d9cbd238aa1a366408881bb069",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "setup.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/DocFlowAI",
+      "added": true,
+      "version": "main",
+      "revision": "ffa0c17b2b9301ed4981efdc52fa8ed02a4f0280",
+      "files": 49,
+      "content_kinds": {
+        "code": 41,
+        "documentation": 8,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/DocFlowAI",
+        "id": "github:7f5e7766af5ab008f2edba77397db7b08c85fdd2143ffe3f769b0848b8ea5812",
+        "path": "diff.txt",
+        "revision": "ffa0c17b2b9301ed4981efdc52fa8ed02a4f0280",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "diff.txt",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/Embodied_AI_Simulation",
+      "added": true,
+      "version": "main",
+      "revision": "fd1c3618c428dba546d0819c6e5cd96412b6dc92",
+      "files": 401,
+      "content_kinds": {
+        "code": 372,
+        "documentation": 29,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/Embodied_AI_Simulation",
+        "id": "github:5ce7e7a8991d4024dcfaa231d9d832785c8bf3c641124aeee3be8a79c57f347e",
+        "path": "Go1/requirements.txt",
+        "revision": "fd1c3618c428dba546d0819c6e5cd96412b6dc92",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "Go1/requirements.txt",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/fio",
+      "added": true,
+      "version": "master",
+      "revision": "46bc449c930d0bf37a6eeea58b831c770f0542bf",
+      "files": 441,
+      "content_kinds": {
+        "code": 429,
+        "documentation": 12,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/fio",
+        "id": "github:9c78c1e296c9de46dc8d228fde813ce175a82b08d524b13760a50b85496755b4",
+        "path": "err.h",
+        "revision": "46bc449c930d0bf37a6eeea58b831c770f0542bf",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "err.h",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/flashattn",
+      "added": false,
+      "version": "2.25.2",
+      "revision": "8f279843ce18cb5c1c9e695267e28060d0b6273c",
+      "files": 1068,
+      "content_kinds": {
+        "code": 1054,
+        "documentation": 14
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/flashattn",
+        "id": "github:556565c5af84a433b3edd68e8c02fc2a21ef46c62e70d88156c31bc516b6be43",
+        "path": "Makefile",
+        "revision": "8f279843ce18cb5c1c9e695267e28060d0b6273c",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "Makefile",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/FlashMLA",
+      "added": true,
+      "version": "main",
+      "revision": "b246af19465084b1a97d4de480c3ea0c1b356e4c",
+      "files": 605,
+      "content_kinds": {
+        "code": 604,
+        "documentation": 1,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/FlashMLA",
+        "id": "github:6ac663312ec7bdb9b65222a87168fd0e84f8ef369deb1fc5763a39e39175cfa5",
+        "path": "setup.py",
+        "revision": "b246af19465084b1a97d4de480c3ea0c1b356e4c",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "setup.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/GeoScience",
+      "added": true,
+      "version": "main",
+      "revision": "21b741480c04b0cd055efde6d3867a7c18d6b7f2",
+      "files": 3,
+      "content_kinds": {
+        "documentation": 3,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/GeoScience",
+        "id": "github:b54aa6e0012c6c1e248d072e1cc8f828e000ecd259ac265674ded3ed2625f459",
+        "path": "README.md",
+        "revision": "21b741480c04b0cd055efde6d3867a7c18d6b7f2",
+        "content_kind": "documentation",
+        "repository_status": null,
+        "query": "GeoScience",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/go-mxsml",
+      "added": true,
+      "version": "main",
+      "revision": "a68fddadc6c24c1de3bb4c2b5cfdd8e926168ec2",
+      "files": 32,
+      "content_kinds": {
+        "code": 31,
+        "documentation": 1,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/go-mxsml",
+        "id": "github:cfd7060b6c67628f3cf25bc33178f840730eb5801405c9b26f066db16925f357",
+        "path": "Makefile",
+        "revision": "a68fddadc6c24c1de3bb4c2b5cfdd8e926168ec2",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "Makefile",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/goutils",
+      "added": true,
+      "version": "main",
+      "revision": "126b07f3969b043b288e1bd2527f61a0b43029d1",
+      "files": 8,
+      "content_kinds": {
+        "code": 7,
+        "documentation": 1,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/goutils",
+        "id": "github:7fa4af6411e8dbb9e627c13ffd1b8fbf4c4d10d1ce646dbc3e3663d54335ea63",
+        "path": "appfs/fs.go",
+        "revision": "126b07f3969b043b288e1bd2527f61a0b43029d1",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "appfs/fs.go",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/gpuBenchmark",
+      "added": false,
+      "version": "main",
+      "revision": "c036397faf50b02173820f4ceba61771c473c181",
+      "files": 56,
+      "content_kinds": {
+        "code": 51,
+        "documentation": 5
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/gpuBenchmark",
+        "id": "github:ed8d5c39911221e9a7176416d02f1a780f1aef136241fa8c5b0776a3b84b0d45",
+        "path": "requirements.txt",
+        "revision": "c036397faf50b02173820f4ceba61771c473c181",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "requirements.txt",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/hpc_warp",
+      "added": true,
+      "version": "releases/v1.8.1",
+      "revision": "31e8a0fc28a8341e9897876f6c7c52034e54abe0",
+      "files": 622,
+      "content_kinds": {
+        "code": 578,
+        "documentation": 44,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/hpc_warp",
+        "id": "github:01eb5ee171b8062eca1be9680dff91c8a7d11eee7a7870327ab53551995d332f",
+        "path": "setup.py",
+        "revision": "31e8a0fc28a8341e9897876f6c7c52034e54abe0",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "setup.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/LifeScience",
+      "added": true,
+      "version": "main",
+      "revision": "1bfa13e3dde50c2b9881cc4563f28f311feba177",
+      "files": 21,
+      "content_kinds": {
+        "code": 9,
+        "documentation": 12,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/LifeScience",
+        "id": "github:c29c8d38b4cbc7621c5d82c913e6eecd0e272680c5cf620bcd33dd03e783a652",
+        "path": "ESM3/Dockerfile",
+        "revision": "1bfa13e3dde50c2b9881cc4563f28f311feba177",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "ESM3/Dockerfile",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/LMCache",
+      "added": true,
+      "version": "dev",
+      "revision": "f08bf165d8f3ff7fc87e3f10d946bf283bccea67",
+      "files": 2007,
+      "content_kinds": {
+        "code": 1663,
+        "documentation": 344,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/LMCache",
+        "id": "github:80cea662a5a3178e90b18340cf950fd3bfc53e83f9b3ceeee4322ba020849c29",
+        "path": "setup.py",
+        "revision": "f08bf165d8f3ff7fc87e3f10d946bf283bccea67",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "setup.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/maca-samples",
+      "added": false,
+      "version": "main",
+      "revision": "e6de14cc4d9248768d066a1475450ed7705fd766",
+      "files": 70,
+      "content_kinds": {
+        "code": 52,
+        "documentation": 18
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/maca-samples",
+        "id": "github:750c5a84e756eeb2742a783de372689296ced065d5c1c6a9a5c8fe4289730729",
+        "path": "Common/param.h",
+        "revision": "e6de14cc4d9248768d066a1475450ed7705fd766",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "Common/param.h",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/Materials",
+      "added": true,
+      "version": "main",
+      "revision": "85ac43d1b323c8b148cf44a1655f6e46244aad81",
+      "files": 13,
+      "content_kinds": {
+        "code": 1,
+        "documentation": 12,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/Materials",
+        "id": "github:8637dd19e1ee9b95e1d9414be85857fb296195f2e4b36935e2e0d228f09b2fe3",
+        "path": "MatterSim/LICENSE.txt",
+        "revision": "85ac43d1b323c8b148cf44a1655f6e46244aad81",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "MatterSim/LICENSE.txt",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcApex",
+      "added": true,
+      "version": "2.25.2",
+      "revision": "661cf0c448846cc8df015e5b5470f94e0f57596c",
+      "files": 490,
+      "content_kinds": {
+        "code": 466,
+        "documentation": 24,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcApex",
+        "id": "github:a8b9993f1910c9accc37d0f9a21def52d0139b9ead94ec548d9e18d69ac6c390",
+        "path": "setup.py",
+        "revision": "661cf0c448846cc8df015e5b5470f94e0f57596c",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "setup.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mccl-nccl",
+      "added": false,
+      "version": "2.20.5",
+      "revision": "157bc6bb8bc7dd74fb560cd66932356e927e2834",
+      "files": 238,
+      "content_kinds": {
+        "code": 236,
+        "documentation": 2
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mccl-nccl",
+        "id": "github:f9e43f8b49a1edad68a8bf23ff89fd6f5f9477d4c936d0d6bbc553e4b0e93881",
+        "path": "build.sh",
+        "revision": "157bc6bb8bc7dd74fb560cd66932356e927e2834",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "build.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mccl_tests",
+      "added": false,
+      "version": "main",
+      "revision": "1e44d4af1b177f2ab9e23bdd0b393ad757d08f4e",
+      "files": 35,
+      "content_kinds": {
+        "code": 33,
+        "documentation": 2
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mccl_tests",
+        "id": "github:8766df963acc4956ad6cf2c5fe8c9c55bdc887e718306825d99cd7e1b5d4b5a2",
+        "path": "mccl.sh",
+        "revision": "1e44d4af1b177f2ab9e23bdd0b393ad757d08f4e",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "mccl.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcdf",
+      "added": true,
+      "version": "2.1.9-maca",
+      "revision": "2506d320cceac4bc7cb269df3c6c2325daa2703e",
+      "files": 2185,
+      "content_kinds": {
+        "code": 2118,
+        "documentation": 67,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcdf",
+        "id": "github:4df13b93b9dcf7a2bd1a798a3785ee67c49ef9876e542a5c165e0dfc48cc2a83",
+        "path": "build.sh",
+        "revision": "2506d320cceac4bc7cb269df3c6c2325daa2703e",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "build.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcEigen",
+      "added": true,
+      "version": "main",
+      "revision": "9744cce049b0f920e7b9186b3ce64cdf40d93519",
+      "files": 1692,
+      "content_kinds": {
+        "code": 1681,
+        "documentation": 11,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcEigen",
+        "id": "github:102e8bd5c5603359655e56a45a84739052d96f48eaa566d0466e4fcf9e3a97d8",
+        "path": "blas/blas.h",
+        "revision": "9744cce049b0f920e7b9186b3ce64cdf40d93519",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "blas/blas.h",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcFaiss",
+      "added": true,
+      "version": "1.10.0-maca",
+      "revision": "de1bd6d5a044f1ee2bfc4bd80ec1af79007c7dcb",
+      "files": 761,
+      "content_kinds": {
+        "code": 745,
+        "documentation": 16,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcFaiss",
+        "id": "github:1ea5371b79f6b51a244dd1f7350ee09c840f718fda3d0b5b7358622291b01599",
+        "path": "faiss/Index.h",
+        "revision": "de1bd6d5a044f1ee2bfc4bd80ec1af79007c7dcb",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "faiss/Index.h",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcfile-python",
+      "added": true,
+      "version": "mx-dev",
+      "revision": "73c2d215ee417b68810e1426080dff6e4029276f",
+      "files": 14,
+      "content_kinds": {
+        "code": 12,
+        "documentation": 2,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcfile-python",
+        "id": "github:6e15d3512542c4fd2cc66e6455ef0c955be84402951fa8e7145f4f60af52e5d3",
+        "path": "setup.py",
+        "revision": "73c2d215ee417b68810e1426080dff6e4029276f",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "setup.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/McFlashInfer",
+      "added": false,
+      "version": "master",
+      "revision": "4d23f89fab846c48f40dc096a90fcb2b3ea3e006",
+      "files": 198,
+      "content_kinds": {
+        "code": 197,
+        "documentation": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/McFlashInfer",
+        "id": "github:55c6c2d8d4a7f4f190b0a0de1686698077b0b37d37b131867d2b10b2e99851f7",
+        "path": "clean.sh",
+        "revision": "4d23f89fab846c48f40dc096a90fcb2b3ea3e006",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "clean.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcFlashMLA",
+      "added": true,
+      "version": "main",
+      "revision": "c2dbf6e9328f839b96970662e6ec379b6d79d6c8",
+      "files": 601,
+      "content_kinds": {
+        "code": 600,
+        "documentation": 1,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcFlashMLA",
+        "id": "github:997b7fc238dec8ce387996076e2cc43e16e162be675496e733650d96a4d1d018",
+        "path": "setup.py",
+        "revision": "c2dbf6e9328f839b96970662e6ec379b6d79d6c8",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "setup.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcoplib",
+      "added": false,
+      "version": "main",
+      "revision": "1089e4bafb1096cc1faf41dc683b2d35ca577a15",
+      "files": 1729,
+      "content_kinds": {
+        "code": 1643,
+        "documentation": 86
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcoplib",
+        "id": "github:91de924ef3b5bada7ffe6f7217487b71eb461887b5cfd376840e11f92b53d5a3",
+        "path": "env.sh",
+        "revision": "1089e4bafb1096cc1faf41dc683b2d35ca577a15",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "env.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcpy",
+      "added": true,
+      "version": "2.1.9-maca",
+      "revision": "c273c920f2884d4defd18df42f69e0e03ffe214c",
+      "files": 1049,
+      "content_kinds": {
+        "code": 961,
+        "documentation": 88,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcpy",
+        "id": "github:4b2207d38ad2101f2ad185c25ab55086bd316aed60ee2ab65dc29bd2080cf682",
+        "path": "setup.py",
+        "revision": "c273c920f2884d4defd18df42f69e0e03ffe214c",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "setup.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcPytorch",
+      "added": true,
+      "version": "2.4",
+      "revision": "b3db5eed6a6e330133cd3d4b173f8da392aa6bcb",
+      "files": 10672,
+      "content_kinds": {
+        "code": 10270,
+        "documentation": 402,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcPytorch",
+        "id": "github:a6dddc83db7493f6dabea3896065857d4c08aa99ff36131bb7d35f4792534b66",
+        "path": "Makefile",
+        "revision": "b3db5eed6a6e330133cd3d4b173f8da392aa6bcb",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "Makefile",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcSolver",
+      "added": true,
+      "version": "2.25.2",
+      "revision": "dcb780f08d24dabe53c877c20c14c3869b42900b",
+      "files": 332,
+      "content_kinds": {
+        "code": 330,
+        "documentation": 2,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcSolver",
+        "id": "github:c7b385998c8bdf580067952631f6d57d2c9cc90ec5845f38fed3678bcb6c7fa6",
+        "path": "Makefile",
+        "revision": "dcb780f08d24dabe53c877c20c14c3869b42900b",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "Makefile",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcSparse",
+      "added": true,
+      "version": "2.25.2",
+      "revision": "d4639412981e3d889e30d12928443813f62a6667",
+      "files": 177,
+      "content_kinds": {
+        "code": 175,
+        "documentation": 2,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcSparse",
+        "id": "github:037466aa9c3fd7fd24d7be090d7770af5e8f5b20e621b144cb9bfdf59f43303a",
+        "path": "Makefile",
+        "revision": "d4639412981e3d889e30d12928443813f62a6667",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "Makefile",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcTlass",
+      "added": false,
+      "version": "2.20.2",
+      "revision": "3d125cdd2ae265d6f76c5f5ac3d2cadcd2bfb47d",
+      "files": 398,
+      "content_kinds": {
+        "code": 397,
+        "documentation": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcTlass",
+        "id": "github:49a50e53dbd024ecd955b90f93cddaeb8e6fd902799ace177bc451f9dedb1889",
+        "path": "LICENSE.txt",
+        "revision": "3d125cdd2ae265d6f76c5f5ac3d2cadcd2bfb47d",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "LICENSE.txt",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcTriton",
+      "added": false,
+      "version": "3.0",
+      "revision": "7dd407c26568fceaca44cb894138e5202d369805",
+      "files": 371,
+      "content_kinds": {
+        "code": 349,
+        "documentation": 22
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcTriton",
+        "id": "github:36888011b08bd389a4ab8b91108310c5da906e4c65b03f05287b87fd984d50a1",
+        "path": "docs/conf.py",
+        "revision": "7dd407c26568fceaca44cb894138e5202d369805",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "docs/conf.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcTVM",
+      "added": true,
+      "version": "dev",
+      "revision": "f289b769f7ec6723695d2bcc0f9d56629392837a",
+      "files": 3280,
+      "content_kinds": {
+        "code": 3109,
+        "documentation": 171,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcTVM",
+        "id": "github:51be9b039952b5ef3c13cde21de42cf252a93c27025afdba595c2813fdcce85b",
+        "path": ".asf.yaml",
+        "revision": "f289b769f7ec6723695d2bcc0f9d56629392837a",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": ".asf.yaml",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mcXformer",
+      "added": true,
+      "version": "2.22.0",
+      "revision": "aef88de756194e077460a1c8b8b341baa429259a",
+      "files": 1366,
+      "content_kinds": {
+        "code": 1323,
+        "documentation": 43,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mcXformer",
+        "id": "github:efd63f776de528b771eb25347399fffb2d2d985866d8074af73138e3c3efe4b7",
+        "path": "setup.py",
+        "revision": "aef88de756194e077460a1c8b8b341baa429259a",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "setup.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/MedicalImage",
+      "added": true,
+      "version": "main",
+      "revision": "aec1304bd33b9870b5b3d232c6a22edf2418ffc2",
+      "files": 9,
+      "content_kinds": {
+        "code": 6,
+        "documentation": 3,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/MedicalImage",
+        "id": "github:2069bf2ac9f957aa7e50e215a48250e9394e4624a511f77a7be068ca3519abba",
+        "path": "MONAI/Dockerfile",
+        "revision": "aec1304bd33b9870b5b3d232c6a22edf2418ffc2",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "MONAI/Dockerfile",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/metax-ai4s",
+      "added": true,
+      "version": "main",
+      "revision": "1f07504e9ea6621eab3f9853e94c734240ff64c2",
+      "files": 1,
+      "content_kinds": {
+        "documentation": 1,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/metax-ai4s",
+        "id": "github:411d341906ae6c72e40a3f81d45fcc480b1fdd1dd9b15ee45bf464be84ab9d22",
+        "path": "README.md",
+        "revision": "1f07504e9ea6621eab3f9853e94c734240ff64c2",
+        "content_kind": "documentation",
+        "repository_status": null,
+        "query": "AI4S · 沐曦开发者社区",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/metax-lifescience-toolkit",
+      "added": true,
+      "version": "main",
+      "revision": "171c2c3ede478132b91527e4d87b44f6b0500dbe",
+      "files": 41,
+      "content_kinds": {
+        "code": 15,
+        "documentation": 26,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/metax-lifescience-toolkit",
+        "id": "github:47ce187a144ef5e0c6075e9be4af94ec5f1c6d63c010160ca4f9c51ca4aa2d68",
+        "path": "mim-skills/boltz2-mim/evals/evals.json",
+        "revision": "171c2c3ede478132b91527e4d87b44f6b0500dbe",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "mim-skills/boltz2-mim/evals/evals.json",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/MetaX-MACA.github.io",
+      "added": true,
+      "version": "main",
+      "revision": "",
+      "files": 0,
+      "content_kinds": {
+        "repository_metadata": 1
+      },
+      "status": "empty",
+      "verification": {
+        "repository": "MetaX-MACA/MetaX-MACA.github.io",
+        "id": "github:578d6bb0c14047a72995dd36f0b1d1d5c85c641a6b3b72d1990c278bb440870e",
+        "path": "",
+        "revision": "",
+        "content_kind": "repository_metadata",
+        "repository_status": "empty",
+        "query": "MetaX-MACA/MetaX-MACA.github.io",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/modelzoo",
+      "added": true,
+      "version": "main",
+      "revision": "05203e4e512f258df343400b453b31d72abbe873",
+      "files": 154,
+      "content_kinds": {
+        "code": 148,
+        "documentation": 6,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/modelzoo",
+        "id": "github:30e5818773eed6762edf2518860a017bbe43bbfd1386af0197358de8e26b3924",
+        "path": "openmodels/run.sh",
+        "revision": "05203e4e512f258df343400b453b31d72abbe873",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "openmodels/run.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/Mooncake",
+      "added": true,
+      "version": "main",
+      "revision": "3e626f202eeeabf6ee542f43f07e2e9b1f43068b",
+      "files": 2013,
+      "content_kinds": {
+        "code": 1861,
+        "documentation": 152,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/Mooncake",
+        "id": "github:849c39f27796d554ff715627274f90f0a39adff8965ca6b9aca4ee08dbee9637",
+        "path": ".typos.toml",
+        "revision": "3e626f202eeeabf6ee542f43f07e2e9b1f43068b",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": ".typos.toml",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mxCuco",
+      "added": true,
+      "version": "2.1.9-maca",
+      "revision": "a7d19206f21b2e5aa52b8768dc0a129fcd6b241d",
+      "files": 77,
+      "content_kinds": {
+        "code": 73,
+        "documentation": 4,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mxCuco",
+        "id": "github:1652a2651f59bb82b6bcbfddf3db58655f4a950a9eea2a6b1df2832cc7b67fc1",
+        "path": "CMakeLists.txt",
+        "revision": "a7d19206f21b2e5aa52b8768dc0a129fcd6b241d",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "CMakeLists.txt",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/MXDeepEP",
+      "added": false,
+      "version": "main",
+      "revision": "5ce9cce6efc06f2596b8f395e5cae3c78494699a",
+      "files": 58,
+      "content_kinds": {
+        "code": 55,
+        "documentation": 3
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/MXDeepEP",
+        "id": "github:0ff969f7d9b16f2dc545a5c3af270db4e72f73a078e5e81fdf03cc622a79bbf4",
+        "path": "ibgda.cu",
+        "revision": "5ce9cce6efc06f2596b8f395e5cae3c78494699a",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "ibgda.cu",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mxDlrover",
+      "added": true,
+      "version": "0.4.0-maca",
+      "revision": "0a916cd6268a8efe89e83684a4b042fa9a532c9d",
+      "files": 753,
+      "content_kinds": {
+        "code": 700,
+        "documentation": 53,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mxDlrover",
+        "id": "github:f6d10030491617f6213cd663801eb1aa123d872e12e1569faf7bd9aa8e4e1e00",
+        "path": "setup.py",
+        "revision": "0a916cd6268a8efe89e83684a4b042fa9a532c9d",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "setup.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mxExporter",
+      "added": true,
+      "version": "main",
+      "revision": "99fc48a1c1509e7fc7eefac8d334a7f0547adb0b",
+      "files": 44,
+      "content_kinds": {
+        "code": 41,
+        "documentation": 3,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mxExporter",
+        "id": "github:d0f70ceb15111cfddcd261b4e83348ae0421c5d2bae2175bcb2452a97a139d99",
+        "path": "Makefile",
+        "revision": "99fc48a1c1509e7fc7eefac8d334a7f0547adb0b",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "Makefile",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mxFIO",
+      "added": true,
+      "version": "main",
+      "revision": "94901440125d892131a4e41cd3967d13a6ebd043",
+      "files": 406,
+      "content_kinds": {
+        "code": 400,
+        "documentation": 6,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mxFIO",
+        "id": "github:f849dfbc661b6e10ef697dcc18c9c5e17d48d00402396c60db3f988b94478833",
+        "path": "err.h",
+        "revision": "94901440125d892131a4e41cd3967d13a6ebd043",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "err.h",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mxJitify",
+      "added": true,
+      "version": "jitify2",
+      "revision": "2d79aa343fe4ab0252d7a3e3f53f51ad78f2d0fc",
+      "files": 18,
+      "content_kinds": {
+        "code": 16,
+        "documentation": 2,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mxJitify",
+        "id": "github:97ec87724200c00fd27917b1d658abfbec4cb93aacf9698552bf856d59349aef",
+        "path": "Makefile",
+        "revision": "2d79aa343fe4ab0252d7a3e3f53f51ad78f2d0fc",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "Makefile",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mxNumbax",
+      "added": true,
+      "version": "2.1.9-maca",
+      "revision": "ed64f03c9e663f4819b700abd50ad40537200f39",
+      "files": 930,
+      "content_kinds": {
+        "code": 820,
+        "documentation": 110,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mxNumbax",
+        "id": "github:636c2828af0eceb0a097d118515d63bba38f51b8c340027b3bfd81ea1e2bd25f",
+        "path": "mypy.ini",
+        "revision": "ed64f03c9e663f4819b700abd50ad40537200f39",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "mypy.ini",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/mxRmmx",
+      "added": true,
+      "version": "2.1.9-maca",
+      "revision": "db28ba47de810bfa99148f43a8ddff5915870cc5",
+      "files": 180,
+      "content_kinds": {
+        "code": 169,
+        "documentation": 11,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/mxRmmx",
+        "id": "github:66b2473a2620c4b46269851cec459c977dba47c2cadd3c55c1ab75cdc41d0e97",
+        "path": "build.sh",
+        "revision": "db28ba47de810bfa99148f43a8ddff5915870cc5",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "build.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/Onnxruntime",
+      "added": false,
+      "version": "2.25.2",
+      "revision": "1acd81ff2d0179530d6428361cdba6429a9df62e",
+      "files": 10,
+      "content_kinds": {
+        "code": 9,
+        "documentation": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/Onnxruntime",
+        "id": "github:c509d5fa5321021ab874e6b2ba6fb3762008ed7c5134c6374a85507e17af1bfa",
+        "path": "cmake/external/ppl.nn/cmake/cuda.cmake",
+        "revision": "1acd81ff2d0179530d6428361cdba6429a9df62e",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "cmake/external/ppl.nn/cmake/cuda.cmake",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/op_optimization",
+      "added": false,
+      "version": "master",
+      "revision": "67875de0d2f159f7380ad6471a34bf8c6551a8f1",
+      "files": 5,
+      "content_kinds": {
+        "documentation": 5
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/op_optimization",
+        "id": "github:75d1489b99fe42e1ee41a2f290f0b390be1b0600e6123d789cb2a2d403051cae",
+        "path": "README.md",
+        "revision": "67875de0d2f159f7380ad6471a34bf8c6551a8f1",
+        "content_kind": "documentation",
+        "repository_status": null,
+        "query": "降低Token 成本，攻坚国产推理生态｜沐曦两大赛题登陆 2026 揭榜挂帅擂台赛，邀青年共破局！",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/Physics",
+      "added": true,
+      "version": "main",
+      "revision": "f03d39f062c7791b36a5abb3d9d8d4533366d2af",
+      "files": 41,
+      "content_kinds": {
+        "code": 19,
+        "documentation": 22,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/Physics",
+        "id": "github:c37127adf4109fd4218454986282e254271bb88b82ed58e84fe88bedece9b95d",
+        "path": "Models/GeoPT/Dockerfile",
+        "revision": "f03d39f062c7791b36a5abb3d9d8d4533366d2af",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "Models/GeoPT/Dockerfile",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/ppl.llm.serving",
+      "added": true,
+      "version": "2.20.2",
+      "revision": "32a371acb703b71f8b5d983b39188264365ef838",
+      "files": 3275,
+      "content_kinds": {
+        "code": 3233,
+        "documentation": 42,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/ppl.llm.serving",
+        "id": "github:2730c50bc19b4924485fd6b976cfa07af11a0f4a9de94160e642f1129980bdb3",
+        "path": "env.sh",
+        "revision": "32a371acb703b71f8b5d983b39188264365ef838",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "env.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/pymxsml",
+      "added": true,
+      "version": "main",
+      "revision": "001080bc04a6307df3e2263ae5ce33a534e4a2cd",
+      "files": 9,
+      "content_kinds": {
+        "code": 8,
+        "documentation": 1,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/pymxsml",
+        "id": "github:4dc771c0abd955d324ec48077533ac6c794de49f02f4789cf5ef86a7ec8fa897",
+        "path": "setup.py",
+        "revision": "001080bc04a6307df3e2263ae5ce33a534e4a2cd",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "setup.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/QuickGuide",
+      "added": true,
+      "version": "main",
+      "revision": "2f0de6f75160297464ffeb0d1218f0a35aee9baf",
+      "files": 1,
+      "content_kinds": {
+        "documentation": 1,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/QuickGuide",
+        "id": "github:dca5d78b084ef283f1f15bca1f68838f7684a526f87f64d6a02de410359ec1f5",
+        "path": "README.md",
+        "revision": "2f0de6f75160297464ffeb0d1218f0a35aee9baf",
+        "content_kind": "documentation",
+        "repository_status": null,
+        "query": "QuickGuide",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/sglang",
+      "added": false,
+      "version": "release/v0.5.21",
+      "revision": "2b6d2c59fe1e171947764dd34172a01a7aeec6ec",
+      "files": 9738,
+      "content_kinds": {
+        "code": 9210,
+        "documentation": 528
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/sglang",
+        "id": "github:939153f7f3c83d8707faebacca103ff93142a7e111967fac2449f24473b97f25",
+        "path": ".isort.cfg",
+        "revision": "2b6d2c59fe1e171947764dd34172a01a7aeec6ec",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": ".isort.cfg",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/simple-jenkins-githubaction",
+      "added": true,
+      "version": "main",
+      "revision": "0da90053f3e389d520ded677b07d29ff9a4f3ddb",
+      "files": 4,
+      "content_kinds": {
+        "code": 3,
+        "documentation": 1,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/simple-jenkins-githubaction",
+        "id": "github:95cd2c37aa1259100f3f966c57b3ff40bd6d6d82caff063286fbd95d03d1c6de",
+        "path": "main.py",
+        "revision": "0da90053f3e389d520ded677b07d29ff9a4f3ddb",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "main.py",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/TileKernels-Metax",
+      "added": false,
+      "version": "dev",
+      "revision": "0266ab740980de7dc03a828b8259cd73d100c2eb",
+      "files": 124,
+      "content_kinds": {
+        "code": 123,
+        "documentation": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/TileKernels-Metax",
+        "id": "github:44a4377fb7e3e4fd8fb4269df6311e4b7ae62fafd9c95d5fd453ebaf73adb1a4",
+        "path": "pyproject.toml",
+        "revision": "0266ab740980de7dc03a828b8259cd73d100c2eb",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "pyproject.toml",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/TileOPs-Metax",
+      "added": false,
+      "version": "dev",
+      "revision": "a40cd4480a56a2acfaff21ec7ca1636c986f7608",
+      "files": 638,
+      "content_kinds": {
+        "code": 613,
+        "documentation": 25
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/TileOPs-Metax",
+        "id": "github:40ac30aa0dc5fe9a8538e9853664bf587729b4f360470abc24203d18af135b16",
+        "path": "MANIFEST.in",
+        "revision": "a40cd4480a56a2acfaff21ec7ca1636c986f7608",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "MANIFEST.in",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/verl-metax",
+      "added": true,
+      "version": "main",
+      "revision": "b39f7ce49014b605369344287896849a8457a76f",
+      "files": 100,
+      "content_kinds": {
+        "code": 67,
+        "documentation": 33,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/verl-metax",
+        "id": "github:740629a32abbe3dafe90e95d2dac7dc5c22b4e19bd330eec467f7a2f9f925dfd",
+        "path": "MANIFEST.in",
+        "revision": "b39f7ce49014b605369344287896849a8457a76f",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "MANIFEST.in",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/VirtualHuman",
+      "added": true,
+      "version": "main",
+      "revision": "b3b17551d007e06441c1a8f22c7c1fc96e5ed411",
+      "files": 17,
+      "content_kinds": {
+        "code": 9,
+        "documentation": 8,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/VirtualHuman",
+        "id": "github:a43df9cedd0d03a158d562564a18015e0c2b63e4e25c959cc8285a9d6e5d709f",
+        "path": "projects/musepose/requirements.txt",
+        "revision": "b3b17551d007e06441c1a8f22c7c1fc96e5ed411",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "projects/musepose/requirements.txt",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/vLLM-metax",
+      "added": false,
+      "version": "master",
+      "revision": "4ccfa7a6c003157265779847380e6d4aac7e0db4",
+      "files": 1425,
+      "content_kinds": {
+        "code": 1345,
+        "documentation": 80
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/vLLM-metax",
+        "id": "github:2e8bb0be595bfd527507b649e743da1f76aa0fa30c5327e12c5f909440b4c2a8",
+        "path": "env.sh",
+        "revision": "4ccfa7a6c003157265779847380e6d4aac7e0db4",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "env.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/vllm-omni-metax",
+      "added": true,
+      "version": "main",
+      "revision": "35cc3687bba127a760331bea9466bf554dce028b",
+      "files": 83,
+      "content_kinds": {
+        "code": 73,
+        "documentation": 10,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/vllm-omni-metax",
+        "id": "github:402626efc7012c0e438a43fcf4a0ebbd194b8e034fd50c9415e6727fe1ac919b",
+        "path": "env.sh",
+        "revision": "35cc3687bba127a760331bea9466bf554dce028b",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "env.sh",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "MetaX-MACA/WeatherForecast",
+      "added": true,
+      "version": "main",
+      "revision": "8ac2fcfa1a61b7f7ccbfe0fe0a073f5caf9e8662",
+      "files": 10,
+      "content_kinds": {
+        "code": 2,
+        "documentation": 8,
+        "repository_metadata": 1
+      },
+      "status": "available",
+      "verification": {
+        "repository": "MetaX-MACA/WeatherForecast",
+        "id": "github:c6d98ffb2bc3a866e220b782067b7221fd8362defd06210583514cd779d6c80c",
+        "path": "short-range-forecast/Dockerfile",
+        "revision": "8ac2fcfa1a61b7f7ccbfe0fe0a073f5caf9e8662",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "short-range-forecast/Dockerfile",
+        "search_ok": true,
+        "read_ok": true
+      }
+    },
+    {
+      "repository": "tile-ai/tilelang-metax",
+      "added": false,
+      "version": "dev",
+      "revision": "90d49f353ec88bd0d346474f143003d865dd3b79",
+      "files": 1965,
+      "content_kinds": {
+        "code": 1868,
+        "documentation": 97
+      },
+      "status": "available",
+      "verification": {
+        "repository": "tile-ai/tilelang-metax",
+        "id": "github:783359f51cb91a2b85ea2e1ec6e37dd9e84386f9db17dc3c065ee4783c5dd1b0",
+        "path": "src/ir.h",
+        "revision": "90d49f353ec88bd0d346474f143003d865dd3b79",
+        "content_kind": "code",
+        "repository_status": null,
+        "query": "src/ir.h",
+        "search_ok": true,
+        "read_ok": true
+      }
+    }
+  ],
+  "evidence": {
+    "run": ".data/refresh/20261109T122441.189898Z",
+    "result": ".data/refresh/20261109T122441.189898Z/result.json",
+    "sync": ".data/refresh/20261109T122441.189898Z/sync.json",
+    "verify": ".data/refresh/20261109T122441.189898Z/verify.json",
+    "organization_inventory": ".data/organization-expansion-20261109/organization.json",
+    "selection": ".data/organization-expansion-20261109/selection.json",
+    "backup": ".data/index.previous.sqlite3"
+  },
+  "resolved_failures": [
+    {
+      "run": ".data/refresh/20261109T115039.346098Z",
+      "reason": "Selected COCO annotation JSON exceeded archive per-file byte bound.",
+      "resolution": "Explicitly exclude two dataset annotation copies; keep code and examples. Restarted from the serving snapshot."
+    },
+    {
+      "run": ".data/refresh/20261109T122441.189898Z",
+      "reason": "Four REST blob reads exhausted transport retries.",
+      "resolution": "Read only the four missing blobs through gh GraphQL, verified Git blob hashes and all 401 selected repository paths, then resumed with completed batches.",
+      "evidence": ".data/refresh/20261109T122441.189898Z/repair-gh-graphql.json"
+    },
+    {
+      "run": ".data/refresh/20261109T122441.189898Z",
+      "reason": "Git export-subst changed six version files in archives.",
+      "resolution": "Read the six original fixed Git blobs through gh, retained the Git hash gate and verified complete repository inventories.",
+      "evidence": ".data/refresh/20261109T122441.189898Z/repair-export-subst.json"
+    },
+    {
+      "run": ".data/refresh/20261109T122441.189898Z",
+      "reason": "LMCache README symlinks were selected as regular files but the archive reader correctly did not follow them.",
+      "resolution": "Exclude mode=120000 link pointers before file selection; keep eligible regular source files. Retried from the complete batch checkpoint."
+    },
+    {
+      "reason": "Per-repository verification assumed documentation filenames were their indexed titles and an exact source filename ranked below repeated body mentions.",
+      "resolution": "Use indexed titles for documentation, keep source path queries, and prioritize exact filename/title matches. Original symbol probes remain unchanged; all 68 repository checks passed."
+    }
+  ],
+  "write_path_recovery": {
+    "interrupted_run": ".data/refresh/20261109T120302.961345Z",
+    "reason": "Batch 2 had loaded code before the FTS insertion improvement; resumed from a complete checkpoint, then found the asset-heavy Embodied archive exceeded the byte bound.",
+    "resolution": "Preserved reports and complete data. Restarted the new-repository run after adding a per-repository gh API transport override."
+  },
+  "known_public_gaps": [
+    "MXSHMEM complete underlying implementation not confirmed public.",
+    "Standalone mcBLASLt GEMM + Communication API documentation, SDK headers and examples not confirmed public."
+  ]
+}

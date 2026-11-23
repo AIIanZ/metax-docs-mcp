@@ -383,7 +383,7 @@ curl -fsSL 'https://developer.metax-tech.com/softnova/api/v3/dlhub/choice_info/?
 
 ## MACA 编程和框架源码扩展（2026-09-30）
 
-2026-09-30 的探测快照核对了 [MetaX-MACA 仓库](https://github.com/MetaX-MACA) 和 [TileLang-Metax](https://github.com/tile-ai/tilelang-metax)。当前 `examples/sources.json` 选择 13 个仓库：vLLM-metax、sglang、maca-samples、gpuBenchmark、mcoplib、mcTlass、mcTriton、flashattn、McFlashInfer、op_optimization、TileOPs-Metax、TileKernels-Metax 和 tile-ai/tilelang-metax；收录支持扩展名的文档、源码与构建文件。
+2026-09-30 的探测快照核对了 [MetaX-MACA 仓库](https://github.com/MetaX-MACA) 和 [TileLang-Metax](https://github.com/tile-ai/tilelang-metax)。当时 `examples/sources.json` 选择 13 个仓库：vLLM-metax、sglang、maca-samples、gpuBenchmark、mcoplib、mcTlass、mcTriton、flashattn、McFlashInfer、op_optimization、TileOPs-Metax、TileKernels-Metax 和 tile-ai/tilelang-metax；收录支持扩展名的文档、源码与构建文件。
 
 2026-09-30 的 SGLang `main` 快照没有 MACA 平台检测代码；当时核对的 [release/v0.5.14 `common.py`](https://github.com/MetaX-MACA/sglang/blob/a60ee6e5be6f19d94b0ac07bd1b281eb385f37bd/python/sglang/srt/utils/common.py) 含 `is_maca()` 和 MACA 设备逻辑。当前刷新从配置的 `release/v0.5.14` 种子发现最新稳定适配分支，按版本号排序并固定完整 commit。2026-11-02 选中 `release/v0.5.21`，commit `2b6d2c59fe1e171947764dd34172a01a7aeec6ec`。仓库地址属于沐曦组织，不足以证明默认分支含适配实现，验收必须查询实际源码。
 
@@ -392,3 +392,44 @@ curl -fsSL 'https://developer.metax-tech.com/softnova/api/v3/dlhub/choice_info/?
 代码库使用固定 commit 的 Git tree 和 `https://codeload.github.com/<owner>/<repo>/tar.gz/<commit>`。每个文件的原始字节与 tree 中的 Git blob SHA 核对后才入库。服务仍只读本地 SQLite；同步归档不会执行其中的构建脚本或命令。固定 commit、分支和内容类型随检索结果及回读元数据返回。
 
 配置排除大型 tokenizer、一个生成的 SGLang 稀疏测试 JSON、两个 TileLang 上游 HIP/CUDA 头文件，以及 vLLM 测试模型中的 `merges.txt` 和 `vocab.json`。这些排除项不参与范围完成判断，具体模式见 `examples/sources.json`。历史版本、子模块、PDF、Notebook、二进制和不支持的文件扩展名仍在范围外。
+
+## 通信与计算融合资料（2026-11-09）
+
+默认配置新增以下公开来源，优先抓取 Triton-distributed、MCCL 和 MXDeepEP。每周完整刷新沿用同一配置，并通过 stdio MCP 检索、回读和算子指南引用检查后发布。
+
+| 资料 | 公开来源与实际范围 |
+| --- | --- |
+| Triton-distributed | [ByteDance-Seed/Triton-distributed](https://github.com/ByteDance-Seed/Triton-distributed)：MetaX 后端位于 `lib/Conversion/**/METAX/`，融合实现与测试位于 `python/triton_dist/kernels/metax/`、`python/triton_dist/test/metax/` |
+| MCCL | [MetaX-MACA/mccl-nccl](https://github.com/MetaX-MACA/mccl-nccl)：`src/graph/rings.cc`、`src/device/all_reduce.h`、`src/device/prims_simple.h`；[mccl_tests](https://github.com/MetaX-MACA/mccl_tests) 提供调用与校验示例；官方《MCCL编程指南》提供 API 和环境变量 |
+| MXDeepEP | [MetaX-MACA/MXDeepEP](https://github.com/MetaX-MACA/MXDeepEP)：`csrc/kernels/`、`deep_ep/`、`tests/`、`example.cpp` 和构建说明 |
+| MXSHMEM | Triton-distributed 中的 `python/triton_dist/language/extra/maca/libmxshmem_device.py`、`shmem/mxshmem_bind/pymxshmem/`，覆盖设备函数、Python/C++ 绑定及 ring put 示例 |
+| mcBLASLt | [MetaX-MACA/Onnxruntime](https://github.com/MetaX-MACA/Onnxruntime) 中的 mcBLASLt GEMM/Matmul 调用及其句柄、布局和构建代码，具体路径由 `repository_include_globs` 限定；另补入官方《mcBLAS API参考》作为普通 GEMM 接口参考 |
+
+MXSHMEM 的公开绑定依赖 SDK，当前尚未确认底层完整实现的公开源码入口。MXDeepEP 的构建文档中包含内部依赖地址，索引只保存这些地址的原文，不访问内部地址或安装 SDK。
+
+2026-11-09 读取官方 `series/filter/?keyword=mcBLASLt`、`file/search/?file_name=mcBLASLt` 和 `file/search/?file_name=MXSHMEM`，均返回 `code=0`、空 `data`。当前公开 `mcBLAS API参考` 3.9.1 包含普通 mcBLAS 接口，目录未列出 mcBLASLt 或 GEMM + Communication API。mcBLASLt 的厂商融合 API 文档、SDK 头文件和独立示例仍属覆盖缺口；Onnxruntime 的调用代码可用于理解已公开使用方式。
+
+跨组织白名单仅增加 `ByteDance-Seed/Triton-distributed`。配置中保留 `shmem/mxshmem_bind/` 和 MetaX 后端，不执行下载的代码。新增 `.td`、`.mlir`、`.mk` 和 `.patch` 扩展名，用于保存编译器定义、IR 测试、构建文件与源码补丁。MXDeepEP 仅排除 `third-party/include/**` 的通用 IB 头文件，保留自身 kernel、接口、示例及 `nvshmem.patch`。
+
+官方目录在本次抓取时将内建函数手册的 series 名称改为 `MXMACA编译器内建函数编程指南`，配置已按实际名称更新；手册页面标题仍保留原来的空格。
+
+
+## MetaX-MACA 组织仓库扩展（2026-11-09）
+
+通过已登录的 `gh` 分页读取 [MetaX-MACA 公开仓库清单](https://github.com/orgs/MetaX-MACA/repositories)，共 66 个仓库。与当前 MCP 按完整仓库名去重，已有 16 个，新增 50 个。原有 2 个跨组织来源继续保留，配置合计 68 个仓库。逐库分支、固定 commit、收录数量和查询样例见 [仓库收录表](REPOSITORIES.md)。
+
+本次按新增模式扩充，保留已有仓库的快照与路径范围。Onnxruntime 仍限定为此前的 mcBLASLt 调用及直接依赖。每周一 10:00（Asia/Shanghai）执行完整刷新，先用 `gh` 核对组织清单，再同步配置中的来源。
+
+GitHub 元数据、分支、目录树、源码归档、逐文件读取及后续远端操作统一使用 `gh`。采集器不导出凭据；登录失效时保留旧索引并报告失败。官方文档和 Docker 目录继续使用原有公开接口。
+
+新增 Cython、Fortran、C++ 模板与包含文件、协议定义的源码扩展名，用于覆盖 mcpy、mcdf 和科学计算仓库中的实现及接口。归档文件维持 8 MiB 上限，正文上限提高到 10,000,000 字符，每库最多 50,000 个文件。
+
+新增排除项为 modelzoo 的两份 `**/data/instances_val2017.json` 和 ppl.llm.serving 的 `tools/samples_8192.json`。它们分别是约 20 MB 的 COCO 标注和约 15 MB 的大样本数据，超出单文件限制；保留读取这些数据的示例、配置和实现代码。此前的 tokenizer 数据和重复 vendor 目录排除项继续有效。二进制、子模块、PDF、Notebook 和未支持的扩展名仍在范围外。
+
+每个新增仓库保存独立元数据记录，标明实际文件数及是否为空。仓库 size=0 不代表没有文件，只有 commit API 返回 HTTP 409 才认定为空。发布前逐库检索并回读真实文件，另校验既有符号、18 个算子指南主题及 SQLite/FTS 完整性。运行证据见 [组织扩展验收记录](refresh/2026-11-09-organization.json)。
+
+具身智能仓库 `MetaX-MACA/Embodied_AI_Simulation` 的完整归档包含大量素材，超过 128 MiB 压缩体上限。配置通过 `github.repository_transports` 将这个仓库设为 `api`，按固定 commit 的目录树逐文件读取所选文本，其余仓库继续使用归档。源码范围不因传输方式改变。
+
+mcdf 的 `.gitattributes` 对版本文件启用 `export-subst`，GitHub 归档会替换这些文件中的版本信息。采集器发现归档与目录树中的 blob 不同时，通过 `gh` 读取原始 Git blob，再执行相同的大小和 hash 校验；索引保留 commit 中的原始源码。
+
+LMCache 的部分 README 在 Git 中是符号链接。目录树中 `mode=120000` 的条目保存目标路径，不作为源码文件收录；范围内的真实文件仍按原规则入库。
